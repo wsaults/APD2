@@ -19,7 +19,6 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Intent a = new Intent(getApplicationContext(),InviteActivity.class);
-				a.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 				setResult(RESULT_OK, a);
 				startActivityForResult(a,0);
 		    }

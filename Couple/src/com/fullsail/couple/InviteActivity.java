@@ -2,7 +2,10 @@ package com.fullsail.couple;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Intent;
 import android.view.Menu;
+import android.view.View;
+import android.widget.Button;
 
 public class InviteActivity extends Activity {
 
@@ -10,6 +13,16 @@ public class InviteActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_invite);
+		
+		Button sendInviteButton = (Button) findViewById(R.id.sendInviteButton);
+		sendInviteButton.setOnClickListener(new View.OnClickListener() { 
+			@Override
+			public void onClick(View v) {
+				Intent a = new Intent(getApplicationContext(),ChatActivity.class);
+				setResult(RESULT_OK, a);
+				startActivityForResult(a,0);
+		    }
+		});
 	}
 
 	@Override

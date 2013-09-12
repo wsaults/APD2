@@ -7,6 +7,9 @@
     <string name="register">Register</string>
     <string name="email">email</string>
     <string name="password">password</string>
+    <string name="invite_text">Invite your loved one to join you in Couple!</string>
+    <string name="invite_email_text">Enter their email</string>
+    <string name="invite_email_button_text">Send invitation</string>
     <string name="title_activity_invite">InviteActivity</string>
     <string name="title_activity_chat">ChatActivity</string>
     <string name="title_section1">Section 1</string>
