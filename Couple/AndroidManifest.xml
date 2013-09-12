@@ -26,6 +26,10 @@
             android:name="com.fullsail.couple.InviteActivity"
             android:label="@string/title_activity_invite" >
         </activity>
+        <activity
+            android:name="com.fullsail.couple.ChatActivity"
+            android:label="@string/title_activity_chat" >
+        </activity>
     </application>
 
 </manifest>
