@@ -34,6 +34,14 @@
             android:name="com.fullsail.couple.PhotosActivity"
             android:label="@string/title_activity_photos" >
         </activity>
+        <activity
+            android:name="com.fullsail.couple.PhotoActivity"
+            android:label="@string/title_activity_photo"
+            android:parentActivityName="com.fullsail.couple.PhotosActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.fullsail.couple.PhotosActivity" />
+        </activity>
     </application>
 
 </manifest>
