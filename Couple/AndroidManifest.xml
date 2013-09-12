@@ -30,6 +30,10 @@
             android:name="com.fullsail.couple.ChatActivity"
             android:label="@string/title_activity_chat" >
         </activity>
+        <activity
+            android:name="com.fullsail.couple.PhotosActivity"
+            android:label="@string/title_activity_photos" >
+        </activity>
     </application>
 
 </manifest>
