@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.fullsail.couple"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="17"
+        android:targetSdkVersion="17" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name="com.fullsail.couple.MainActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.fullsail.couple.InviteActivity"
+            android:label="@string/title_activity_invite" >
+        </activity>
+        <activity
+            android:name="com.fullsail.couple.ChatActivity"
+            android:label="@string/title_activity_chat" >
+        </activity>
+        <activity
+            android:name="com.fullsail.couple.PhotosActivity"
+            android:label="@string/title_activity_photos" >
+        </activity>
+        <activity
+            android:name="com.fullsail.couple.PhotoActivity"
+            android:label="@string/title_activity_photo"
+            android:parentActivityName="com.fullsail.couple.PhotosActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.fullsail.couple.PhotosActivity" />
+        </activity>
+    </application>
+
+</manifest>
