@@ -1,3 +1,12 @@
+/*
+ * project 	Couple
+ * 
+ * package 	com.fullsail.couple
+ * 
+ * @author 	William Saults
+ * 
+ * date 	Sep 12, 2013
+ */
 package com.fullsail.couple;
 
 import android.os.Bundle;
@@ -18,7 +27,7 @@ public class InviteActivity extends Activity {
 		sendInviteButton.setOnClickListener(new View.OnClickListener() { 
 			@Override
 			public void onClick(View v) {
-				Intent a = new Intent(getApplicationContext(),ChatActivity.class);
+				Intent a = new Intent(getApplicationContext(),TabActivity.class);
 				setResult(RESULT_OK, a);
 				startActivityForResult(a,0);
 		    }
