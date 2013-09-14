@@ -1,3 +1,12 @@
+/*
+ * project 	Couple
+ * 
+ * package 	com.fullsail.couple
+ * 
+ * @author 	William Saults
+ * 
+ * date 	Sep 12, 2013
+ */
 package com.fullsail.couple;
 
 import java.util.Locale;

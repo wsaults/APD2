@@ -24,19 +24,21 @@ public final class R {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
+        public static final int ImageButton01=0x7f080016;
+        public static final int ImageButton02=0x7f080017;
         public static final int TextView01=0x7f080009;
         public static final int TextView02=0x7f08000b;
         public static final int TextView03=0x7f08000d;
-        public static final int action_settings=0x7f080016;
+        public static final int action_settings=0x7f080018;
         public static final int editText1=0x7f080001;
         public static final int editText2=0x7f080004;
-        public static final int imageView1=0x7f080013;
-        public static final int imageView2=0x7f08000f;
-        public static final int imageView3=0x7f080011;
-        public static final int imageView4=0x7f080010;
-        public static final int imageView5=0x7f080012;
-        public static final int imageView6=0x7f080014;
-        public static final int imageView7=0x7f080015;
+        public static final int imageButton1=0x7f08000f;
+        public static final int imageButton3=0x7f080010;
+        public static final int imageButton4=0x7f080011;
+        public static final int imageButton5=0x7f080012;
+        public static final int imageButton6=0x7f080013;
+        public static final int imageButton7=0x7f080014;
+        public static final int imageButton8=0x7f080015;
         public static final int pager=0x7f080006;
         public static final int registerButton=0x7f080005;
         public static final int section_label=0x7f08000e;
@@ -51,10 +53,11 @@ public final class R {
     public static final class layout {
         public static final int activity_invite=0x7f030000;
         public static final int activity_main=0x7f030001;
-        public static final int activity_tab=0x7f030002;
-        public static final int fragment_tab_chat=0x7f030003;
-        public static final int fragment_tab_dummy=0x7f030004;
-        public static final int fragment_tab_photos=0x7f030005;
+        public static final int activity_photo=0x7f030002;
+        public static final int activity_tab=0x7f030003;
+        public static final int fragment_tab_chat=0x7f030004;
+        public static final int fragment_tab_dummy=0x7f030005;
+        public static final int fragment_tab_photos=0x7f030006;
     }
     public static final class menu {
         public static final int chat=0x7f070000;
@@ -74,11 +77,12 @@ public final class R {
         public static final int invite_text=0x7f050006;
         public static final int password=0x7f050005;
         public static final int register=0x7f050003;
-        public static final int title_activity_invite=0x7f050009;
+        public static final int title_activity_invite=0x7f05000a;
+        public static final int title_activity_main=0x7f050009;
+        public static final int title_activity_photo=0x7f05000e;
         public static final int title_activity_tab=0x7f05000d;
-        public static final int title_section1=0x7f05000a;
-        public static final int title_section2=0x7f05000b;
-        public static final int title_section3=0x7f05000c;
+        public static final int title_section1=0x7f05000b;
+        public static final int title_section2=0x7f05000c;
     }
     public static final class style {
         /** 

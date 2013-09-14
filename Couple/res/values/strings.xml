@@ -8,11 +8,13 @@
     <string name="email">email</string>
     <string name="password">password</string>
     <string name="invite_text">Invite your loved one to join you in Couple!</string>
-    <string name="invite_email_text">Enter their email</string>
+    <string name="invite_email_text">enter their email</string>
     <string name="invite_email_button_text">Send invitation</string>
-    <string name="title_activity_invite">InviteActivity</string>
+    <string name="title_activity_main">Registration</string>
+    <string name="title_activity_invite">Invite your partner</string>
     <string name="title_section1">Chat Log</string>
     <string name="title_section2">Photos</string>
     <string name="title_activity_tab">Couple</string>
+    <string name="title_activity_photo">Photo</string>
 
 </resources>
