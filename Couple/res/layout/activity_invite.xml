@@ -14,31 +14,55 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="106dp"
         android:text="@string/invite_text" />
-
-    <EditText
-        android:id="@+id/editText1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/textView1"
-        android:layout_marginTop="16dp"
-        android:ems="10"
-        android:hint="@string/invite_email_text"
-        android:inputType="textEmailAddress" >
-
-        <requestFocus />
-    </EditText>
 
     <Button
         android:id="@+id/sendInviteButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/editText1"
-        android:layout_alignRight="@+id/editText1"
-        android:layout_centerVertical="true"
+        android:layout_alignLeft="@+id/inviteEmailEditText"
+        android:layout_alignRight="@+id/inviteEmailEditText"
+        android:layout_below="@+id/inviteEmailEditText"
         android:text="@string/invite_email_button_text" />
+
+    <TextView
+        android:id="@+id/TextView01"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/textView1"
+        android:layout_below="@+id/sendInviteButton"
+        android:layout_marginTop="73dp"
+        android:text="@string/accept_invite_text" />
+
+    <EditText
+        android:id="@+id/acceptInviteEditText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/sendInviteButton"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/TextView01"
+        android:ems="10"
+        android:hint="@string/accept_invite_text_hint"
+        android:inputType="textEmailAddress" />
+
+    <EditText
+        android:id="@+id/inviteEmailEditText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/TextView01"
+        android:layout_below="@+id/textView1"
+        android:ems="10"
+        android:hint="@string/invite_email_text"
+        android:inputType="textEmailAddress" />
+
+    <Button
+        android:id="@+id/acceptInviteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/acceptInviteEditText"
+        android:text="@string/accept_invite_button_text" />
 
 </RelativeLayout>

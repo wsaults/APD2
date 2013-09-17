@@ -120,6 +120,7 @@ public class MainActivity extends Activity {
 		    		userObject.saveInBackground();
 		    		
 		    		Intent a = new Intent(getApplicationContext(),InviteActivity.class);
+		    		a.putExtra("Email", username);
 					setResult(RESULT_OK, a);
 					startActivityForResult(a,0);
 		        }	
@@ -127,7 +128,7 @@ public class MainActivity extends Activity {
 		});
 	}
 	
-	public void loginUser(String username, String password) {
+	public void loginUser(final String username, String password) {
 		if (!areUserCredentialsValid(username, password)) return;
 		
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("User");
@@ -140,9 +141,17 @@ public class MainActivity extends Activity {
 		            Log.d("user", "Retrieved " + user.size() + " user");
 		            
 		            // A valid user, matching username and password, was found. Login.
-		            Intent a = new Intent(getApplicationContext(),InviteActivity.class);
-					setResult(RESULT_OK, a);
+		            Boolean inviteSent = _preferences.getBoolean("inviteSentOrAccepted", false);
+		            Intent a = null;
+		    		if (!inviteSent) {
+			            a = new Intent(getApplicationContext(),InviteActivity.class);
+			            a.putExtra("Email", username);
+		    		} else {
+		    			a = new Intent(getApplicationContext(),TabActivity.class);
+		    		}
+		    		setResult(RESULT_OK, a);
 					startActivityForResult(a,0);
+		            
 		        } else {
 		            Log.d("user", "No matching credentials found: " + e.getMessage());
 		        }	

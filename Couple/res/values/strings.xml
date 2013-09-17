@@ -9,8 +9,11 @@
     <string name="email">email</string>
     <string name="password">password</string>
     <string name="invite_text">Invite your loved one to join you in Couple!</string>
+    <string name="accept_invite_text">Enter your code below to accept an invitation!</string>
     <string name="invite_email_text">enter their email</string>
+    <string name="accept_invite_text_hint">enter your code</string>
     <string name="invite_email_button_text">Send invitation</string>
+    <string name="accept_invite_button_text">Accept invitation</string>
     <string name="title_activity_main">Registration</string>
     <string name="title_activity_invite">Invite your partner</string>
     <string name="title_section1">Chat Log</string>
