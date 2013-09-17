@@ -20,7 +20,7 @@
         android:textSize="48sp" />
 
     <EditText
-        android:id="@+id/editText1"
+        android:id="@+id/emailEditText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -33,25 +33,34 @@
     </EditText>
 
     <EditText
-        android:id="@+id/editText2"
+        android:id="@+id/passwordEditText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/editText1"
+        android:layout_alignLeft="@+id/emailEditText"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/editText1"
+        android:layout_below="@+id/emailEditText"
         android:layout_marginTop="16dp"
         android:ems="10"
         android:hint="@string/password"
         android:inputType="textPassword" />
-    
+
+    <Button
+        android:id="@+id/loginButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/registerButton"
+        android:layout_alignBottom="@+id/registerButton"
+        android:layout_alignRight="@+id/passwordEditText"
+        android:layout_toRightOf="@+id/registerButton"
+        android:text="@string/login" />
+
     <Button
         android:id="@+id/registerButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/editText2"
-        android:layout_alignRight="@+id/editText2"
-        android:layout_below="@+id/editText2"
-        android:layout_marginTop="24dp"
+        android:layout_alignLeft="@+id/passwordEditText"
+        android:layout_below="@+id/passwordEditText"
+        android:layout_marginTop="25dp"
         android:text="@string/register" />
 
 </RelativeLayout>
