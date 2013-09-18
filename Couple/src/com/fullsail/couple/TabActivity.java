@@ -9,24 +9,38 @@
  */
 package com.fullsail.couple;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
+import android.content.Context;
+import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 public class TabActivity extends FragmentActivity implements
 		ActionBar.TabListener {
+	
+	Context _context;
 
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -47,6 +61,8 @@ public class TabActivity extends FragmentActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_tab);
+		
+		_context = this;
 
 		// Set up the action bar.
 		final ActionBar actionBar = getActionBar();
@@ -168,6 +184,12 @@ public class TabActivity extends FragmentActivity implements
 	 * displays dummy text.
 	 */
 	public static class ChatSectionFragment extends Fragment {
+		
+		String[] message;
+	    String[] time;
+	    ListView list;
+	    ListViewAdapter adapter;
+		
 		/**
 		 * The fragment argument representing the section number for this
 		 * fragment.
@@ -178,7 +200,29 @@ public class TabActivity extends FragmentActivity implements
 
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_tab_chat,container, false);
+			View rootView = inflater.inflate(R.layout.fragment_tab_chat, container, false);
+			
+	        // Generate sample data
+			message = new String[] { "Message 1", "Message 2", "Message 3", "Message 4", "Message 5",
+					"Message 6", "Message 7", "Message 8", "Message 9", "Message 10",
+					"Message 11", "Message 12", "Message 13", "Message 14", "Message 15"
+					};
+	 
+			time = new String[] { "x mins ago", "x mins ago", "x mins ago", "x mins ago", "x mins ago",
+					"x mins ago", "x mins ago", "x mins ago", "x mins ago", "x mins ago",
+					"x mins ago", "x mins ago", "x mins ago", "x mins ago", "x mins ago"
+					};
+	 
+	        // Locate the ListView in fragmenttab1.xml
+			list = (ListView) rootView.findViewById(R.id.chatListView);
+	 
+	        // Pass results to ListViewAdapter Class
+			adapter = new ListViewAdapter(getActivity(), message, time);
+	        // Binds the Adapter to the ListView
+			if (list != null) {
+				list.setAdapter(adapter);
+			}
+
 			return rootView;
 		}
 	}

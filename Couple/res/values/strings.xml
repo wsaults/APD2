@@ -20,5 +20,8 @@
     <string name="title_section2">Photos</string>
     <string name="title_activity_tab">Couple</string>
     <string name="title_activity_photo">Photo</string>
+    
+    <string name="messagelabel">"Message : "</string>
+    <string name="timelabel">"Time : "</string>
 
 </resources>

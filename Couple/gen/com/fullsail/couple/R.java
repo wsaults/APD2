@@ -27,12 +27,14 @@ public final class R {
         public static final int TextView01=0x7f080003;
         public static final int acceptInviteButton=0x7f080005;
         public static final int acceptInviteEditText=0x7f080004;
-        public static final int action_settings=0x7f08000f;
+        public static final int action_settings=0x7f080013;
+        public static final int chatListView=0x7f08000c;
         public static final int emailEditText=0x7f080007;
         public static final int gridView1=0x7f08000e;
         public static final int inviteEmailEditText=0x7f080002;
-        public static final int listView1=0x7f08000c;
         public static final int loginButton=0x7f080009;
+        public static final int message=0x7f080010;
+        public static final int messagelabel=0x7f08000f;
         public static final int pager=0x7f08000b;
         public static final int passwordEditText=0x7f080008;
         public static final int registerButton=0x7f08000a;
@@ -40,6 +42,8 @@ public final class R {
         public static final int sendInviteButton=0x7f080001;
         public static final int textView1=0x7f080000;
         public static final int textView2=0x7f080006;
+        public static final int time=0x7f080012;
+        public static final int timelabel=0x7f080011;
     }
     public static final class layout {
         public static final int activity_invite=0x7f030000;
@@ -49,6 +53,7 @@ public final class R {
         public static final int fragment_tab_chat=0x7f030004;
         public static final int fragment_tab_dummy=0x7f030005;
         public static final int fragment_tab_photos=0x7f030006;
+        public static final int listview_item=0x7f030007;
     }
     public static final class menu {
         public static final int chat=0x7f070000;
@@ -59,24 +64,27 @@ public final class R {
         public static final int tab=0x7f070005;
     }
     public static final class string {
-        public static final int accept_invite_button_text=0x7f05000b;
+        public static final int accept_invite_button_text=0x7f05000c;
         public static final int accept_invite_text=0x7f050008;
+        public static final int accept_invite_text_hint=0x7f05000a;
         public static final int action_settings=0x7f050001;
         public static final int app_name=0x7f050000;
         public static final int email=0x7f050005;
         public static final int hello_world=0x7f050002;
-        public static final int invite_email_button_text=0x7f05000a;
+        public static final int invite_email_button_text=0x7f05000b;
         public static final int invite_email_text=0x7f050009;
         public static final int invite_text=0x7f050007;
         public static final int login=0x7f050004;
+        public static final int messagelabel=0x7f050013;
         public static final int password=0x7f050006;
         public static final int register=0x7f050003;
-        public static final int title_activity_invite=0x7f05000d;
-        public static final int title_activity_main=0x7f05000c;
-        public static final int title_activity_photo=0x7f050011;
-        public static final int title_activity_tab=0x7f050010;
-        public static final int title_section1=0x7f05000e;
-        public static final int title_section2=0x7f05000f;
+        public static final int timelabel=0x7f050014;
+        public static final int title_activity_invite=0x7f05000e;
+        public static final int title_activity_main=0x7f05000d;
+        public static final int title_activity_photo=0x7f050012;
+        public static final int title_activity_tab=0x7f050011;
+        public static final int title_section1=0x7f05000f;
+        public static final int title_section2=0x7f050010;
     }
     public static final class style {
         /** 
