@@ -21,11 +21,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class InviteActivity extends Activity {
 	
@@ -38,6 +40,7 @@ public class InviteActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_invite);
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		
 		Bundle extras = getIntent().getExtras();
 		_emailFromLogin = extras.getString("Email");
@@ -56,7 +59,7 @@ public class InviteActivity extends Activity {
 		acceptInviteButton.setOnClickListener(new View.OnClickListener() { 
 			@Override
 			public void onClick(View v) {
-				acceptInvitation(_inviteEmailEditText.getText().toString());
+				acceptInvitation(_acceptInviteEditText.getText().toString());
 		    }
 		});
 	}
@@ -71,12 +74,24 @@ public class InviteActivity extends Activity {
 	public Boolean areUserCredentialsValid(String username) {
 		// Make sure there is valid data in the fields
 		if (username.length() <= 0) {
-			// TODO: display error message.
+			Toast.makeText(getApplicationContext(), "Please enter an email", Toast.LENGTH_LONG).show();
 			return false;
 		}
 
-		// TODO: do email validation.
-		return true;
+		if (isValidEmail(username.subSequence(0, username.length()))) {
+			return true;
+		} else {
+			Toast.makeText(getApplicationContext(), "Please enter a vaild email address", Toast.LENGTH_LONG).show();
+			return false;
+		}
+	}
+	
+	public final static boolean isValidEmail(CharSequence target) {
+	    if (target == null) {
+	        return false;
+	    } else {
+	        return android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
+	    }
 	}
 	
 	public void sendInvitation(String username) {
@@ -97,33 +112,38 @@ public class InviteActivity extends Activity {
 	}
 	
 	public void acceptInvitation(String code) {
-		ParseQuery<ParseObject> query = ParseQuery.getQuery("Invite");
-		query.whereEqualTo("toUser", _emailFromLogin);
-		query.whereEqualTo("code", code);
-		query.findInBackground(new FindCallback<ParseObject>() {
-			@Override
-			public void done(List<ParseObject> invite, ParseException e) {
-				if (e == null) {
-		            Log.d("invite", "Retrieved " + invite.size() + " invite");
-		            
-		            updatePreference();
-		    		
-		    		// TODO: connect users
-		    		
-		    		Intent a = new Intent(getApplicationContext(),TabActivity.class);
-		    		setResult(RESULT_OK, a);
-		    		startActivityForResult(a,0);
-		            
-		        } else {
-		            Log.d("invite", "No matching invite found: " + e.getMessage());
-		        }	
-			}
-		});
+		if (code.length() > 0) {
+			ParseQuery<ParseObject> query = ParseQuery.getQuery("Invite");
+			query.whereEqualTo("toUser", _emailFromLogin);
+			query.whereEqualTo("code", code);
+			query.findInBackground(new FindCallback<ParseObject>() {
+				@Override
+				public void done(List<ParseObject> invite, ParseException e) {
+					if (e == null) {
+			            Log.d("invite", "Retrieved " + invite.size() + " invite");
+			            
+			            updatePreference();
+			    		
+			    		// TODO: connect users
+			    		
+			    		Intent a = new Intent(getApplicationContext(),TabActivity.class);
+			    		setResult(RESULT_OK, a);
+			    		startActivityForResult(a,0);
+			            
+			        } else {
+			            Log.d("invite", "No matching invite found: " + e.getMessage());
+			            Toast.makeText(getApplicationContext(), "No matching invite found", Toast.LENGTH_LONG).show();
+			        }	
+				}
+			});
+		} else {
+			Toast.makeText(getApplicationContext(), "Please enter your code", Toast.LENGTH_LONG).show();
+		}
 	}
 	
 	public void updatePreference() {
         // Save the inviteSentOrAccepted preference
-//		SharedPreferences preferences = _context.getSharedPreferences("MyPreferences", MODE_PRIVATE);
+//		SharedPreferences preferences = getApplicationContext().getSharedPreferences("MyPreferences", MODE_PRIVATE);
 //		SharedPreferences.Editor editor = preferences.edit();
 //		editor.putBoolean("inviteSentOrAccepted", true);
 //		editor.commit();

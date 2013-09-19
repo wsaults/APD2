@@ -16,17 +16,11 @@
         android:layout_toRightOf="@+id/messagelabel" />
  
     <TextView
-        android:id="@+id/timelabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/messagelabel"
-        android:text="@string/timelabel" />
- 
-    <TextView
         android:id="@+id/time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/message"
-        android:layout_toRightOf="@+id/timelabel" />
+        android:textColor="#BBBBBB"
+        android:textSize="12sp"/>
  
 </RelativeLayout>

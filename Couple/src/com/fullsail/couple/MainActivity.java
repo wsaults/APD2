@@ -16,11 +16,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.Parse;
@@ -33,13 +35,14 @@ public class MainActivity extends Activity {
 	
 	EditText _emailEditText;
 	EditText _passwordEditText;
-	Context _context;
+	static Context _context;
 	SharedPreferences _preferences;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		
 		Parse.initialize(this, "7LdGck89MP9UnBeem9wYc1ER96MMOJKfGfWlP6rC", "KGEopcwTYaXZ2FUAmjw5aZwIPRTjw522TjJPya4H"); 
 		ParseAnalytics.trackAppOpened(getIntent());
@@ -82,17 +85,29 @@ public class MainActivity extends Activity {
 	public Boolean areUserCredentialsValid(String username, String password) {
 		// Make sure there is valid data in the fields
 		if (username.length() <= 0) {
-			// TODO: display error message.
+			Toast.makeText(getApplicationContext(), "Please enter an email", Toast.LENGTH_LONG).show();
 			return false;
 		}
 
 		if (password.length() <= 0) {
-			// TODO: display error message.
+			Toast.makeText(getApplicationContext(), "Please enter a password", Toast.LENGTH_LONG).show();
 			return false;
 		}
-
-		// TODO: do email validation.
-		return true;
+		
+		if (isValidEmail(username.subSequence(0, username.length()))) {
+			return true;
+		} else {
+			Toast.makeText(_context, "Please enter a vaild email address", Toast.LENGTH_LONG).show();
+			return false;
+		}
+	}
+	
+	public final static boolean isValidEmail(CharSequence target) {
+	    if (target == null) {
+	        return false;
+	    } else {
+	        return android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
+	    }
 	}
 	
 	public void createNewUser(final String username, final String password) {

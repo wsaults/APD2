@@ -9,38 +9,41 @@
  */
 package com.fullsail.couple;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.Locale;
-import java.util.Map;
 
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
 import android.content.Context;
-import android.database.DataSetObserver;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 public class TabActivity extends FragmentActivity implements
 		ActionBar.TabListener {
 	
-	Context _context;
+	static Context _context;
 
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -61,6 +64,7 @@ public class TabActivity extends FragmentActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_tab);
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		
 		_context = this;
 
@@ -179,16 +183,23 @@ public class TabActivity extends FragmentActivity implements
 		}
 	}
 	
+	@Override
+	public void onBackPressed() {
+		// Do nothing
+	}
+	
 	/**
 	 * A dummy fragment representing a section of the app, but that simply
 	 * displays dummy text.
 	 */
 	public static class ChatSectionFragment extends Fragment {
 		
-		String[] message;
-	    String[] time;
-	    ListView list;
-	    ListViewAdapter adapter;
+		String[] _message;
+	    String[] _time;
+	    ListView _list;
+	    ListViewAdapter _adapter;
+	    EditText _chatEditText;
+	    String _userName;
 		
 		/**
 		 * The fragment argument representing the section number for this
@@ -203,27 +214,71 @@ public class TabActivity extends FragmentActivity implements
 			View rootView = inflater.inflate(R.layout.fragment_tab_chat, container, false);
 			
 	        // Generate sample data
-			message = new String[] { "Message 1", "Message 2", "Message 3", "Message 4", "Message 5",
-					"Message 6", "Message 7", "Message 8", "Message 9", "Message 10",
-					"Message 11", "Message 12", "Message 13", "Message 14", "Message 15"
-					};
-	 
-			time = new String[] { "x mins ago", "x mins ago", "x mins ago", "x mins ago", "x mins ago",
-					"x mins ago", "x mins ago", "x mins ago", "x mins ago", "x mins ago",
-					"x mins ago", "x mins ago", "x mins ago", "x mins ago", "x mins ago"
-					};
-	 
-	        // Locate the ListView in fragmenttab1.xml
-			list = (ListView) rootView.findViewById(R.id.chatListView);
-	 
+			_message = new String[] {};
+			_time = new String[] {};
+			
+			SharedPreferences preferences = _context.getSharedPreferences("MyPreferences", MODE_PRIVATE);
+	        _userName = preferences.getString("username", "") + ": ";
+	        
 	        // Pass results to ListViewAdapter Class
-			adapter = new ListViewAdapter(getActivity(), message, time);
+			_adapter = new ListViewAdapter(getActivity(), _message, _time, _userName);
+			
+			// Locate the ListView
+			_list = (ListView) rootView.findViewById(R.id.chatListView);
+			
 	        // Binds the Adapter to the ListView
-			if (list != null) {
-				list.setAdapter(adapter);
+			if (_list != null) {
+				_list.setAdapter(_adapter);
 			}
+			
+			_chatEditText = (EditText) rootView.findViewById(R.id.chatEditText);
+			
+			Button sendButton = (Button) rootView.findViewById(R.id.chatSendButton);
+			sendButton.setOnClickListener(new View.OnClickListener() { 
+				@Override
+				public void onClick(View v) {
+					if (_chatEditText.getText().toString().length() > 0) {
+						updateChatLog(_chatEditText.getText().toString());
+					}
+			    }
+			});
 
 			return rootView;
+		}
+		
+		public void updateChatLog(String text) {
+			_message = append(_message, text);
+			SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
+			String currentDateandTime = sdf.format(new Date());
+			_time = append(_time, currentDateandTime);
+			_chatEditText.setText("");
+			
+			// Pass results to ListViewAdapter Class
+			_adapter = new ListViewAdapter(getActivity(), _message, _time, _userName);
+			_list.setAdapter(_adapter);
+			((ListViewAdapter)_list.getAdapter()).notifyDataSetChanged();
+			
+			scrollListViewToBottom(_list);
+		}
+		
+		// Thank you stack overflow!
+		// Convenience method for appending strings to string arrays.
+		static <T> T[] append(T[] arr, T element) {
+		    final int N = arr.length;
+		    arr = Arrays.copyOf(arr, N + 1);
+		    arr[N] = element;
+		    return arr;
+		}
+		
+		// Scrolls the passed listview to the bottom.
+		private void scrollListViewToBottom(final ListView list) {
+		    list.post(new Runnable() {
+		        @Override
+		        public void run() {
+		            // Select the last row so it will scroll into view...
+		            list.setSelection(_adapter.getCount() - 1);
+		        }
+		    });
 		}
 	}
 	
@@ -243,7 +298,27 @@ public class TabActivity extends FragmentActivity implements
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 			View rootView = inflater.inflate(R.layout.fragment_tab_photos,container, false);
+			
+			int[] imageSource = new int[] {};
+			
+	        GridView gridView = (GridView) rootView.findViewById(R.id.photosGridView);
+	        gridView.setAdapter(new GridViewAdapter(getActivity(), imageSource));
+			
 			return rootView;
+		}
+		
+		void saveImage(Bitmap photo) {
+			// Getting the SDCard Path
+			File sdcard = Environment.getExternalStorageDirectory();
+			File editedFile = new File( sdcard, "myphoto.jpeg" );
+			FileOutputStream fOut;
+			try {
+				fOut = new FileOutputStream( editedFile );
+				photo.compress( Bitmap.CompressFormat.JPEG, 90, fOut );
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 

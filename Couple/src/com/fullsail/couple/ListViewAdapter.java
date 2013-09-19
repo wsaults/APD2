@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
  
 public class ListViewAdapter extends BaseAdapter {
@@ -14,13 +13,14 @@ public class ListViewAdapter extends BaseAdapter {
     Context context;
     String[] message;
     String[] time;
-    int[] flag;
+    String userName;
     LayoutInflater inflater;
  
-    public ListViewAdapter(Context context, String[] message, String[] time) {
+    public ListViewAdapter(Context context, String[] message, String[] time, String userName) {
         this.context = context;
         this.message = message;
         this.time = time;
+        this.userName = userName;
     }
  
     public int getCount() {
@@ -38,9 +38,9 @@ public class ListViewAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
  
         // Declare Variables
-        TextView txtrank;
-        TextView txtcountry;
-        TextView txtpopulation;
+    	TextView messageLabel;
+        TextView txtMessage;
+        TextView txtTime;
  
         inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -48,12 +48,13 @@ public class ListViewAdapter extends BaseAdapter {
         View itemView = inflater.inflate(R.layout.listview_item, parent, false);
  
         // Locate the TextViews in listview_item.xml
-        txtrank = (TextView) itemView.findViewById(R.id.message);
-        txtcountry = (TextView) itemView.findViewById(R.id.time);
- 
-        // Capture position and set to the TextViews
-        txtrank.setText(message[position]);
-        txtcountry.setText(time[position]);
+        messageLabel = (TextView) itemView.findViewById(R.id.messagelabel);
+        txtMessage = (TextView) itemView.findViewById(R.id.message);
+        txtTime = (TextView) itemView.findViewById(R.id.time);
+		
+        messageLabel.setText(userName);
+        txtMessage.setText(message[position]);
+        txtTime.setText(time[position]);
  
         return itemView;
     }
