@@ -38,7 +38,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.Toast;
 
 public class TabActivity extends FragmentActivity implements
 		ActionBar.TabListener {
@@ -67,6 +67,8 @@ public class TabActivity extends FragmentActivity implements
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		
 		_context = this;
+		
+		Toast.makeText(_context, "123 is the accept key.", Toast.LENGTH_LONG).show();
 
 		// Set up the action bar.
 		final ActionBar actionBar = getActionBar();
@@ -287,6 +289,11 @@ public class TabActivity extends FragmentActivity implements
 	 * displays dummy text.
 	 */
 	public static class PhotosSectionFragment extends Fragment {
+		
+		int[] _imageSource;
+		GridView _grid;
+	    GridViewAdapter _adapter;
+		
 		/**
 		 * The fragment argument representing the section number for this
 		 * fragment.
@@ -298,11 +305,16 @@ public class TabActivity extends FragmentActivity implements
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 			View rootView = inflater.inflate(R.layout.fragment_tab_photos,container, false);
-			
-			int[] imageSource = new int[] {};
-			
-	        GridView gridView = (GridView) rootView.findViewById(R.id.photosGridView);
-	        gridView.setAdapter(new GridViewAdapter(getActivity(), imageSource));
+
+			_imageSource = new int[] { R.drawable.cat1, R.drawable.cat2,
+					R.drawable.cat3, R.drawable.cat4, R.drawable.cat5, R.drawable.cat6, R.drawable.cat7};
+
+			_adapter = new GridViewAdapter(getActivity(), _imageSource);
+
+			// Locate the GridView
+			_grid = (GridView) rootView.findViewById(R.id.photosGridView);
+
+			_grid.setAdapter(new ImageAdapter(_context));
 			
 			return rootView;
 		}
@@ -321,30 +333,4 @@ public class TabActivity extends FragmentActivity implements
 			}
 		}
 	}
-
-	/**
-	 * A dummy fragment representing a section of the app, but that simply
-	 * displays dummy text.
-	 */
-	public static class DummySectionFragment extends Fragment {
-		/**
-		 * The fragment argument representing the section number for this
-		 * fragment.
-		 */
-		public static final String ARG_SECTION_NUMBER = "section_number";
-
-		public DummySectionFragment() {}
-
-		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_tab_dummy,
-					container, false);
-			TextView dummyTextView = (TextView) rootView
-					.findViewById(R.id.section_label);
-			dummyTextView.setText(Integer.toString(getArguments().getInt(
-					ARG_SECTION_NUMBER)));
-			return rootView;
-		}
-	}
-
 }

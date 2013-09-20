@@ -1,14 +1,12 @@
 package com.fullsail.couple;
 
-import java.net.URI;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
+//import android.widget.GridView;
+//import android.widget.ImageView;
 
 public class GridViewAdapter extends BaseAdapter{
 	
@@ -40,19 +38,20 @@ public class GridViewAdapter extends BaseAdapter{
 	}
 
 	@Override
-	public View getView(int arg0, View arg1, ViewGroup arg2) {
-		
+	public View getView(int position, View convertView, ViewGroup parent) {		
 		// Declare Variables
-    	ImageView imageView;
+//    	ImageView imageView;
  
-        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
  
-        View gridView = inflater.inflate(R.layout.gridview_item, arg2, false);
+        View gridView = inflater.inflate(R.layout.gridview_item, parent, false);
+     // Instance of ImageAdapter Class
  
-        // Locate the TextViews in listview_item.xml
-        imageView = (ImageView) gridView.findViewById(R.id.imageView);
-		
-        imageView.setImageResource(imageResource[arg0]);
+//        // Locate the TextViews in listview_item.xml
+//        imageView = (ImageView) gridView.findViewById(R.id.imageView);
+//        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+//        imageView.setPadding(8, 8, 8, 8);
+//        imageView.setImageResource(imageResource[position]);
  
         return gridView;
 	}

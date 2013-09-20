@@ -121,6 +121,7 @@ public class MainActivity extends Activity {
 			public void done(List<ParseObject> user, ParseException e) {
 				if (e == null) {
 		            Log.d("user", "Retrieved " + user.size() + " user");
+		            Toast.makeText(_context, "You already have an account with Couple. Try pressing the Login button.", Toast.LENGTH_LONG).show();
 		        } else {
 		            Log.d("user", "Creating user: " + e.getMessage());
 		            // Save the username locally

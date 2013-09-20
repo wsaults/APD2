@@ -25,7 +25,8 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_toLeftOf="@+id/chatSendButton"
-        android:ems="10" >
+        android:ems="10"
+        android:hint="Say something..." >
 
         <requestFocus />
     </EditText>

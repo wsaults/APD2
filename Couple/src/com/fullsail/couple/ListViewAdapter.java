@@ -9,7 +9,6 @@ import android.widget.TextView;
  
 public class ListViewAdapter extends BaseAdapter {
  
-    // Declare Variables
     Context context;
     String[] message;
     String[] time;
@@ -42,8 +41,7 @@ public class ListViewAdapter extends BaseAdapter {
         TextView txtMessage;
         TextView txtTime;
  
-        inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
  
         View itemView = inflater.inflate(R.layout.listview_item, parent, false);
  

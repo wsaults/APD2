@@ -20,7 +20,7 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+//import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.util.Log;
 import android.view.Menu;
@@ -41,6 +41,8 @@ public class InviteActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_invite);
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		
+		_context = this;
 		
 		Bundle extras = getIntent().getExtras();
 		_emailFromLogin = extras.getString("Email");
@@ -94,21 +96,38 @@ public class InviteActivity extends Activity {
 	    }
 	}
 	
-	public void sendInvitation(String username) {
+	public void sendInvitation(final String username) {
 		if (!areUserCredentialsValid(username)) return;
 		
-		// Save the username and password to parse
-		ParseObject inviteObject = new ParseObject("Invite");
-		inviteObject.put("fromuser", username);
-		inviteObject.put("toUser", username);
-		inviteObject.put("code", "123");
-		inviteObject.saveInBackground();
-		
-		updatePreference();
-		
-		Intent a = new Intent(getApplicationContext(),TabActivity.class);
-		setResult(RESULT_OK, a);
-		startActivityForResult(a,0);
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("Invite");
+		query.whereEqualTo("toUser", username);
+		query.findInBackground(new FindCallback<ParseObject>() {
+			@Override
+			public void done(List<ParseObject> invite, ParseException e) {
+				if (e == null) {
+					Log.d("invite", "Retrieved " + invite.size() + " invite");
+					if (invite.size() >= 1) {
+						Toast.makeText(getApplicationContext(), "That user has already been invited.", Toast.LENGTH_LONG).show();
+					} else {
+						// Save the username and password to parse
+			    		ParseObject inviteObject = new ParseObject("Invite");
+			    		inviteObject.put("fromuser", _emailFromLogin);
+			    		inviteObject.put("toUser", username);
+			    		String key = "123";
+			    		inviteObject.put("code", key);
+			    		inviteObject.saveInBackground();
+			    		
+			    		updatePreference();
+			    		
+			    		Intent a = new Intent(getApplicationContext(),TabActivity.class);
+			     		setResult(RESULT_OK, a);
+			     		startActivityForResult(a,0); 
+					}  
+		        } else {
+		        	Toast.makeText(getApplicationContext(), "There has been an error.", Toast.LENGTH_LONG).show();
+		        }	
+			}
+		});
 	}
 	
 	public void acceptInvitation(String code) {
