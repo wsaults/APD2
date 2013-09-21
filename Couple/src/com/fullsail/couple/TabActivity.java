@@ -20,6 +20,7 @@ import java.util.Locale;
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
@@ -68,7 +69,11 @@ public class TabActivity extends FragmentActivity implements
 		
 		_context = this;
 		
-		Toast.makeText(_context, "123 is the accept key.", Toast.LENGTH_LONG).show();
+		Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+			String key = extras.getString("Key");
+			Toast.makeText(_context, key + " is the invite key.", Toast.LENGTH_LONG).show();
+		}
 
 		// Set up the action bar.
 		final ActionBar actionBar = getActionBar();
@@ -187,7 +192,11 @@ public class TabActivity extends FragmentActivity implements
 	
 	@Override
 	public void onBackPressed() {
-		// Do nothing
+		// Return to home screen.
+		Intent startMain = new Intent(Intent.ACTION_MAIN);
+		startMain.addCategory(Intent.CATEGORY_HOME);
+		startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		startActivity(startMain);
 	}
 	
 	/**

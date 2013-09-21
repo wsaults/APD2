@@ -113,32 +113,38 @@ public class MainActivity extends Activity {
 	public void createNewUser(final String username, final String password) {
 		if (!areUserCredentialsValid(username, password)) return;
 		
-		ParseQuery<ParseObject> query = ParseQuery.getQuery("User");
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("CoupleUser");
 		query.whereEqualTo("username", _emailEditText.getText().toString());
 		query.whereEqualTo("password", _passwordEditText.getText().toString());
 		query.findInBackground(new FindCallback<ParseObject>() {
 			@Override
 			public void done(List<ParseObject> user, ParseException e) {
 				if (e == null) {
-		            Log.d("user", "Retrieved " + user.size() + " user");
-		            Toast.makeText(_context, "You already have an account with Couple. Try pressing the Login button.", Toast.LENGTH_LONG).show();
+					if (user.size() > 0) {
+						Log.d("user", "Retrieved " + user.size() + " user");
+			            Toast.makeText(_context, "You already have an account with Couple. Try pressing the Login button.", Toast.LENGTH_LONG).show();
+					} else {
+			            // Save the username locally
+			    		SharedPreferences.Editor editor = _preferences.edit();
+			    		editor.putString("username", username);
+			    		editor.commit();
+			    		
+			    		// Save the username and password to parse
+			    		ParseObject userObject = new ParseObject("CoupleUser");
+			    		userObject.put("username", username);
+			    		userObject.put("password", password);
+			    		userObject.saveInBackground();
+			    		
+			    		Toast.makeText(_context, "Account created.: Welcome to Couple!.", Toast.LENGTH_LONG).show();
+			    		
+			    		Intent a = new Intent(getApplicationContext(),InviteActivity.class);
+			    		a.putExtra("Email", username);
+						setResult(RESULT_OK, a);
+						startActivityForResult(a,0);
+					}
 		        } else {
-		            Log.d("user", "Creating user: " + e.getMessage());
-		            // Save the username locally
-		    		SharedPreferences.Editor editor = _preferences.edit();
-		    		editor.putString("username", username);
-		    		editor.commit();
-		    		
-		    		// Save the username and password to parse
-		    		ParseObject userObject = new ParseObject("CoupleUser");
-		    		userObject.put("username", username);
-		    		userObject.put("password", password);
-		    		userObject.saveInBackground();
-		    		
-		    		Intent a = new Intent(getApplicationContext(),InviteActivity.class);
-		    		a.putExtra("Email", username);
-					setResult(RESULT_OK, a);
-					startActivityForResult(a,0);
+		        	Log.d("user", "Creating user: " + e.getMessage());
+		        	Toast.makeText(_context, "Error occurced: Creating user.", Toast.LENGTH_LONG).show();
 		        }	
 			}
 		});
@@ -147,29 +153,39 @@ public class MainActivity extends Activity {
 	public void loginUser(final String username, String password) {
 		if (!areUserCredentialsValid(username, password)) return;
 		
-		ParseQuery<ParseObject> query = ParseQuery.getQuery("User");
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("CoupleUser");
 		query.whereEqualTo("username", _emailEditText.getText().toString());
 		query.whereEqualTo("password", _passwordEditText.getText().toString());
 		query.findInBackground(new FindCallback<ParseObject>() {
 			@Override
 			public void done(List<ParseObject> user, ParseException e) {
 				if (e == null) {
-		            Log.d("user", "Retrieved " + user.size() + " user");
-		            
-		            // A valid user, matching username and password, was found. Login.
-		            Boolean inviteSent = _preferences.getBoolean("inviteSentOrAccepted", false);
-		            Intent a = null;
-		    		if (!inviteSent) {
-			            a = new Intent(getApplicationContext(),InviteActivity.class);
-			            a.putExtra("Email", username);
-		    		} else {
-		    			a = new Intent(getApplicationContext(),TabActivity.class);
-		    		}
-		    		setResult(RESULT_OK, a);
-					startActivityForResult(a,0);
-		            
+					Log.d("CoupleUser", "Retrieved " + user.size() + " user");
+					if (user.size() > 0) {
+						// Save the username locally
+			    		SharedPreferences.Editor editor = _preferences.edit();
+			    		editor.putString("username", username);
+			    		editor.commit();
+						
+						// A valid user, matching username and password, was found. Login.
+			            Boolean inviteSent = _preferences.getBoolean("inviteSentOrAccepted", false);
+			            Intent a = null;
+			    		if (!inviteSent) {
+				            a = new Intent(getApplicationContext(),InviteActivity.class);
+				            a.putExtra("Email", username);
+			    		} else {
+			    			a = new Intent(getApplicationContext(),TabActivity.class);
+			    		}
+			    		
+			    		Toast.makeText(_context, "Welcome back!", Toast.LENGTH_LONG).show();
+			    		
+			    		setResult(RESULT_OK, a);
+						startActivityForResult(a,0);
+					} else {
+						Toast.makeText(_context, "Username or password is inccorect.", Toast.LENGTH_LONG).show();
+					}
 		        } else {
-		            Log.d("user", "No matching credentials found: " + e.getMessage());
+		        	Toast.makeText(_context, "Error occurced.", Toast.LENGTH_LONG).show();
 		        }	
 			}
 		});

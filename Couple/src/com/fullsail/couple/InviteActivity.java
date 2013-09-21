@@ -10,6 +10,7 @@
 package com.fullsail.couple;
 
 import java.util.List;
+import java.util.Random;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -113,13 +114,16 @@ public class InviteActivity extends Activity {
 			    		ParseObject inviteObject = new ParseObject("Invite");
 			    		inviteObject.put("fromuser", _emailFromLogin);
 			    		inviteObject.put("toUser", username);
-			    		String key = "123";
+			    		Random r = new Random();
+			    		int rand=r.nextInt(9999-1111) + 1111;
+			    		String key = Integer.toString(rand);
 			    		inviteObject.put("code", key);
 			    		inviteObject.saveInBackground();
 			    		
 			    		updatePreference();
 			    		
 			    		Intent a = new Intent(getApplicationContext(),TabActivity.class);
+			    		a.putExtra("Key", key);
 			     		setResult(RESULT_OK, a);
 			     		startActivityForResult(a,0); 
 					}  
@@ -139,19 +143,21 @@ public class InviteActivity extends Activity {
 				@Override
 				public void done(List<ParseObject> invite, ParseException e) {
 					if (e == null) {
-			            Log.d("invite", "Retrieved " + invite.size() + " invite");
-			            
-			            updatePreference();
-			    		
-			    		// TODO: connect users
-			    		
-			    		Intent a = new Intent(getApplicationContext(),TabActivity.class);
-			    		setResult(RESULT_OK, a);
-			    		startActivityForResult(a,0);
-			            
+						Log.d("invite", "Retrieved " + invite.size() + " invite");
+						if (invite.size() >= 1) {
+				            updatePreference();
+				    		
+				    		// TODO: connect users
+				    		
+				    		Intent a = new Intent(getApplicationContext(),TabActivity.class);
+				    		setResult(RESULT_OK, a);
+				    		startActivityForResult(a,0);
+						} else {
+							Toast.makeText(getApplicationContext(), "No matching invite found", Toast.LENGTH_LONG).show();
+						}
 			        } else {
-			            Log.d("invite", "No matching invite found: " + e.getMessage());
-			            Toast.makeText(getApplicationContext(), "No matching invite found", Toast.LENGTH_LONG).show();
+			            Log.d("invite", "Error: Invite" + e.getMessage());
+			            Toast.makeText(getApplicationContext(), "Error: Invite", Toast.LENGTH_LONG).show();
 			        }	
 				}
 			});
