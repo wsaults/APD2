@@ -12,10 +12,23 @@ package com.fullsail.couple;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
+
+import org.json.JSONArray;
+
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.SaveCallback;
 
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
@@ -31,6 +44,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -45,6 +59,8 @@ public class TabActivity extends FragmentActivity implements
 		ActionBar.TabListener {
 	
 	static Context _context;
+	static String _fromUser;
+	static String _toUser;
 
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -68,6 +84,15 @@ public class TabActivity extends FragmentActivity implements
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		
 		_context = this;
+		SharedPreferences preferences = _context.getSharedPreferences("MyPreferences", MODE_PRIVATE);
+		_fromUser = preferences.getString("fromUser", "");
+		_toUser = preferences.getString("toUser", "");
+		if (_toUser.length() == 0) {
+			Toast.makeText(_context, "Something isn't right. I don't know who to send messages to", Toast.LENGTH_LONG).show();
+		}
+		if (_fromUser.length() == 0) {
+			Toast.makeText(_context, "Something isn't right. I don't know who is sending messages", Toast.LENGTH_LONG).show();
+		}
 		
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
@@ -205,12 +230,12 @@ public class TabActivity extends FragmentActivity implements
 	 */
 	public static class ChatSectionFragment extends Fragment {
 		
-		String[] _message;
-	    String[] _time;
 	    ListView _list;
 	    ListViewAdapter _adapter;
 	    EditText _chatEditText;
 	    String _userName;
+	    String[] _messages;
+		String[] _times;
 		
 		/**
 		 * The fragment argument representing the section number for this
@@ -224,26 +249,28 @@ public class TabActivity extends FragmentActivity implements
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 			View rootView = inflater.inflate(R.layout.fragment_tab_chat, container, false);
 			
-	        // Generate sample data
-			_message = new String[] {};
-			_time = new String[] {};
+			// Generate sample data
+			_messages = new String[] {};
+			_times = new String[] {};
+
+			queryMessages();
 			
 			SharedPreferences preferences = _context.getSharedPreferences("MyPreferences", MODE_PRIVATE);
-	        _userName = preferences.getString("username", "") + ": ";
-	        
-	        // Pass results to ListViewAdapter Class
-			_adapter = new ListViewAdapter(getActivity(), _message, _time, _userName);
-			
+			_userName = preferences.getString("username", "") + ": ";
+
+			// Pass results to ListViewAdapter Class
+			_adapter = new ListViewAdapter(getActivity(), _messages, _times, _userName);
+
 			// Locate the ListView
 			_list = (ListView) rootView.findViewById(R.id.chatListView);
-			
-	        // Binds the Adapter to the ListView
+
+			// Binds the Adapter to the ListView
 			if (_list != null) {
 				_list.setAdapter(_adapter);
 			}
-			
+
 			_chatEditText = (EditText) rootView.findViewById(R.id.chatEditText);
-			
+
 			Button sendButton = (Button) rootView.findViewById(R.id.chatSendButton);
 			sendButton.setOnClickListener(new View.OnClickListener() { 
 				@Override
@@ -251,25 +278,66 @@ public class TabActivity extends FragmentActivity implements
 					if (_chatEditText.getText().toString().length() > 0) {
 						updateChatLog(_chatEditText.getText().toString());
 					}
-			    }
+				}
 			});
 
 			return rootView;
 		}
 		
-		public void updateChatLog(String text) {
-			_message = append(_message, text);
-			SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
-			String currentDateandTime = sdf.format(new Date());
-			_time = append(_time, currentDateandTime);
-			_chatEditText.setText("");
-			
+		public void queryMessages() {
+			ParseQuery<ParseObject> query = ParseQuery.getQuery("Messenger");
+			query.whereEqualTo("fromUser", _fromUser);
+			query.whereEqualTo("toUser", _toUser);
+			query.setLimit(30);
+			query.orderByAscending("createdAt");
+			query.findInBackground(new FindCallback<ParseObject>() {
+				@Override
+				public void done(List<ParseObject> messages, ParseException e) {
+					if (e == null) {
+						_messages = new String [] {};
+						_times = new String [] {};
+						Log.d("messenger", "There are: " + messages.size() + " messenger");
+						for (ParseObject message : messages) {
+							String m = message.getString("message");
+							_messages = append(_messages, m);
+							String t = message.getString("time");
+							_times = append(_times, t);
+							refreshChatLog();
+						}
+					} else {
+						Log.d("Messaging", "Error:" + e.getMessage());
+					}	
+				}
+			});
+		}
+		
+		public void refreshChatLog() {
 			// Pass results to ListViewAdapter Class
-			_adapter = new ListViewAdapter(getActivity(), _message, _time, _userName);
+			_adapter = new ListViewAdapter(getActivity(), _messages, _times, _userName);
 			_list.setAdapter(_adapter);
 			((ListViewAdapter)_list.getAdapter()).notifyDataSetChanged();
-			
 			scrollListViewToBottom(_list);
+		}
+		
+		public void updateChatLog(String text) {
+			_chatEditText.setText("");
+			// Create messenger object
+    		SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
+			String currentDateandTime = sdf.format(new Date());
+    		ParseObject messengerObj = new ParseObject("Messenger");
+    		messengerObj.put("fromUser", _fromUser);
+    		messengerObj.put("toUser", _toUser);
+    		messengerObj.put("message", text);
+    		messengerObj.put("time", currentDateandTime);
+    		messengerObj.saveInBackground(new SaveCallback() {
+    			public void done(ParseException e) {
+    				// Handle success or failure here ...
+    				queryMessages();
+    			}
+    		});
+			
+//			_messages = append(_messages, text);
+//			_times = append(_times, currentDateandTime);
 		}
 		
 		// Thank you stack overflow!
