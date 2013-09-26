@@ -1,6 +1,9 @@
 package com.fullsail.couple;
 
+import java.util.ArrayList;
+
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -9,24 +12,22 @@ import android.widget.ImageView;
  
 public class ImageAdapter extends BaseAdapter {
     private Context mContext;
- 
-    // Keep all Images in array
-    public Integer[] mThumbIds = { R.drawable.cat1, R.drawable.cat2,
-			R.drawable.cat3, R.drawable.cat4, R.drawable.cat5, R.drawable.cat6, R.drawable.cat7};
+    ArrayList<Bitmap> bitmapArray;
  
     // Constructor
-    public ImageAdapter(Context c){
+    public ImageAdapter(Context c, ArrayList<Bitmap> imageResource){
         mContext = c;
+        this.bitmapArray = imageResource;
     }
  
     @Override
     public int getCount() {
-        return mThumbIds.length;
+        return bitmapArray.size();
     }
  
     @Override
     public Object getItem(int position) {
-        return mThumbIds[position];
+        return bitmapArray.get(position);
     }
  
     @Override
@@ -37,9 +38,9 @@ public class ImageAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ImageView imageView = new ImageView(mContext);
-        imageView.setImageResource(mThumbIds[position]);
+        imageView.setImageBitmap(bitmapArray.get(position));
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        imageView.setLayoutParams(new GridView.LayoutParams(70, 70));
+        imageView.setLayoutParams(new GridView.LayoutParams(210, 210));
         return imageView;
     }
  

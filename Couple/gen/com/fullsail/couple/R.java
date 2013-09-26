@@ -34,24 +34,26 @@ public final class R {
         public static final int TextView01=0x7f080003;
         public static final int acceptInviteButton=0x7f080005;
         public static final int acceptInviteEditText=0x7f080004;
-        public static final int action_settings=0x7f080014;
-        public static final int chatEditText=0x7f08000d;
-        public static final int chatListView=0x7f08000c;
-        public static final int chatSendButton=0x7f08000e;
+        public static final int action_settings=0x7f080016;
+        public static final int cameraButton=0x7f080011;
+        public static final int chatEditText=0x7f08000e;
+        public static final int chatListView=0x7f08000d;
+        public static final int chatSendButton=0x7f08000f;
         public static final int emailEditText=0x7f080007;
-        public static final int imageView=0x7f080010;
+        public static final int imageView=0x7f080012;
         public static final int inviteEmailEditText=0x7f080002;
         public static final int loginButton=0x7f080009;
-        public static final int message=0x7f080012;
-        public static final int messagelabel=0x7f080011;
-        public static final int pager=0x7f08000b;
+        public static final int message=0x7f080014;
+        public static final int messagelabel=0x7f080013;
+        public static final int pager=0x7f08000c;
         public static final int passwordEditText=0x7f080008;
-        public static final int photosGridView=0x7f08000f;
+        public static final int photoImageView=0x7f08000b;
+        public static final int photosGridView=0x7f080010;
         public static final int registerButton=0x7f08000a;
         public static final int sendInviteButton=0x7f080001;
         public static final int textView1=0x7f080000;
         public static final int textView2=0x7f080006;
-        public static final int time=0x7f080013;
+        public static final int time=0x7f080015;
     }
     public static final class layout {
         public static final int activity_invite=0x7f030000;
@@ -83,14 +85,15 @@ public final class R {
         public static final int invite_email_text=0x7f050009;
         public static final int invite_text=0x7f050007;
         public static final int login=0x7f050004;
-        public static final int messagelabel=0x7f050013;
+        public static final int messagelabel=0x7f050014;
         public static final int password=0x7f050006;
         public static final int register=0x7f050003;
-        public static final int timelabel=0x7f050014;
+        public static final int timelabel=0x7f050015;
         public static final int title_activity_invite=0x7f05000e;
         public static final int title_activity_main=0x7f05000d;
         public static final int title_activity_photo=0x7f050012;
         public static final int title_activity_tab=0x7f050011;
+        public static final int title_camera_button=0x7f050013;
         public static final int title_section1=0x7f05000f;
         public static final int title_section2=0x7f050010;
     }

@@ -9,23 +9,24 @@
  */
 package com.fullsail.couple;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-
-import org.json.JSONArray;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import com.parse.FindCallback;
+import com.parse.GetDataCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.SaveCallback;
@@ -37,6 +38,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.ImageFormat;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
@@ -49,6 +52,8 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -56,8 +61,8 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 public class TabActivity extends FragmentActivity implements
-		ActionBar.TabListener {
-	
+ActionBar.TabListener {
+
 	static Context _context;
 	static String _fromUser;
 	static String _toUser;
@@ -82,7 +87,7 @@ public class TabActivity extends FragmentActivity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_tab);
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		
+
 		_context = this;
 		SharedPreferences preferences = _context.getSharedPreferences("MyPreferences", MODE_PRIVATE);
 		_fromUser = preferences.getString("fromUser", "");
@@ -93,7 +98,7 @@ public class TabActivity extends FragmentActivity implements
 		if (_fromUser.length() == 0) {
 			Toast.makeText(_context, "Something isn't right. I don't know who is sending messages", Toast.LENGTH_LONG).show();
 		}
-		
+
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			String key = extras.getString("Key");
@@ -117,12 +122,12 @@ public class TabActivity extends FragmentActivity implements
 		// tab. We can also use ActionBar.Tab#select() to do this if we have
 		// a reference to the Tab.
 		mViewPager
-				.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-					@Override
-					public void onPageSelected(int position) {
-						actionBar.setSelectedNavigationItem(position);
-					}
-				});
+		.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+			@Override
+			public void onPageSelected(int position) {
+				actionBar.setSelectedNavigationItem(position);
+			}
+		});
 
 		// For each of the sections in the app, add a tab to the action bar.
 		for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
@@ -185,7 +190,7 @@ public class TabActivity extends FragmentActivity implements
 				args.putInt(ChatSectionFragment.ARG_SECTION_NUMBER, position + 1);
 				fragment.setArguments(args);
 				break;
-				
+
 			case 1:
 				// Create the photos fragment
 				fragment = new PhotosSectionFragment();
@@ -214,7 +219,7 @@ public class TabActivity extends FragmentActivity implements
 			return null;
 		}
 	}
-	
+
 	@Override
 	public void onBackPressed() {
 		// Return to home screen.
@@ -223,20 +228,21 @@ public class TabActivity extends FragmentActivity implements
 		startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		startActivity(startMain);
 	}
-	
+
 	/**
 	 * A dummy fragment representing a section of the app, but that simply
 	 * displays dummy text.
 	 */
 	public static class ChatSectionFragment extends Fragment {
-		
-	    ListView _list;
-	    ListViewAdapter _adapter;
-	    EditText _chatEditText;
-	    String _userName;
-	    String[] _messages;
+
+		ListView _list;
+		ListViewAdapter _adapter;
+		EditText _chatEditText;
+		String _userName;
+		String[] _messages;
 		String[] _times;
-		
+		Timer _timer;
+
 		/**
 		 * The fragment argument representing the section number for this
 		 * fragment.
@@ -248,13 +254,23 @@ public class TabActivity extends FragmentActivity implements
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 			View rootView = inflater.inflate(R.layout.fragment_tab_chat, container, false);
-			
+
+			// Setup the timer
+			_timer = new Timer();
+			_timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					TimerMethod();
+				}
+
+			}, 0, 10000);
+
 			// Generate sample data
 			_messages = new String[] {};
 			_times = new String[] {};
 
 			queryMessages();
-			
+
 			SharedPreferences preferences = _context.getSharedPreferences("MyPreferences", MODE_PRIVATE);
 			_userName = preferences.getString("username", "") + ": ";
 
@@ -283,7 +299,27 @@ public class TabActivity extends FragmentActivity implements
 
 			return rootView;
 		}
-		
+
+		private void TimerMethod()
+		{
+			//This method is called directly by the timer
+			//and runs in the same thread as the timer.
+
+			//We call the method that will work with the UI
+			//through the runOnUiThread method.
+			getActivity().runOnUiThread(Timer_Tick);
+		}
+
+		private Runnable Timer_Tick = new Runnable() {
+			public void run() {
+
+				//This method runs in the same thread as the UI.               
+
+				//Do something to the UI thread here
+				queryMessages();
+			}
+		};
+
 		public void queryMessages() {
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("Messenger");
 			query.whereEqualTo("fromUser", _fromUser);
@@ -296,21 +332,21 @@ public class TabActivity extends FragmentActivity implements
 					if (e == null) {
 						_messages = new String [] {};
 						_times = new String [] {};
-						Log.d("messenger", "There are: " + messages.size() + " messenger");
+						Log.d("Messenger", "There are: " + messages.size() + " messages");
 						for (ParseObject message : messages) {
 							String m = message.getString("message");
 							_messages = append(_messages, m);
 							String t = message.getString("time");
 							_times = append(_times, t);
-							refreshChatLog();
 						}
+						refreshChatLog();
 					} else {
 						Log.d("Messaging", "Error:" + e.getMessage());
 					}	
 				}
 			});
 		}
-		
+
 		public void refreshChatLog() {
 			// Pass results to ListViewAdapter Class
 			_adapter = new ListViewAdapter(getActivity(), _messages, _times, _userName);
@@ -318,59 +354,66 @@ public class TabActivity extends FragmentActivity implements
 			((ListViewAdapter)_list.getAdapter()).notifyDataSetChanged();
 			scrollListViewToBottom(_list);
 		}
-		
+
 		public void updateChatLog(String text) {
 			_chatEditText.setText("");
 			// Create messenger object
-    		SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
+			SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
 			String currentDateandTime = sdf.format(new Date());
-    		ParseObject messengerObj = new ParseObject("Messenger");
-    		messengerObj.put("fromUser", _fromUser);
-    		messengerObj.put("toUser", _toUser);
-    		messengerObj.put("message", text);
-    		messengerObj.put("time", currentDateandTime);
-    		messengerObj.saveInBackground(new SaveCallback() {
-    			public void done(ParseException e) {
-    				// Handle success or failure here ...
-    				queryMessages();
-    			}
-    		});
-			
-//			_messages = append(_messages, text);
-//			_times = append(_times, currentDateandTime);
+			ParseObject messengerObj = new ParseObject("Messenger");
+			messengerObj.put("fromUser", _fromUser);
+			messengerObj.put("toUser", _toUser);
+			messengerObj.put("message", text);
+			messengerObj.put("time", currentDateandTime);
+			messengerObj.saveInBackground(new SaveCallback() {
+				public void done(ParseException e) {
+					// Handle success or failure here ...
+					if (e == null) {
+						queryMessages();
+					} else {
+						Log.d("updateChatLog", "Error:" + e.getMessage());
+					}
+
+				}
+			});
+
+			//			_messages = append(_messages, text);
+			//			_times = append(_times, currentDateandTime);
 		}
-		
+
 		// Thank you stack overflow!
 		// Convenience method for appending strings to string arrays.
 		static <T> T[] append(T[] arr, T element) {
-		    final int N = arr.length;
-		    arr = Arrays.copyOf(arr, N + 1);
-		    arr[N] = element;
-		    return arr;
+			final int N = arr.length;
+			arr = Arrays.copyOf(arr, N + 1);
+			arr[N] = element;
+			return arr;
 		}
-		
+
 		// Scrolls the passed listview to the bottom.
 		private void scrollListViewToBottom(final ListView list) {
-		    list.post(new Runnable() {
-		        @Override
-		        public void run() {
-		            // Select the last row so it will scroll into view...
-		            list.setSelection(_adapter.getCount() - 1);
-		        }
-		    });
+			list.post(new Runnable() {
+				@Override
+				public void run() {
+					// Select the last row so it will scroll into view...
+					list.setSelection(_adapter.getCount() - 1);
+				}
+			});
 		}
 	}
-	
+
 	/**
 	 * A dummy fragment representing a section of the app, but that simply
 	 * displays dummy text.
 	 */
 	public static class PhotosSectionFragment extends Fragment {
-		
-		int[] _imageSource;
+
+		ArrayList<Bitmap> _bitmapArray;
 		GridView _grid;
-	    GridViewAdapter _adapter;
-		
+		private static final int CAMERA_PIC_REQUEST = 1337;
+		Timer _timer;
+		ImageAdapter _adapter;
+
 		/**
 		 * The fragment argument representing the section number for this
 		 * fragment.
@@ -383,31 +426,152 @@ public class TabActivity extends FragmentActivity implements
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 			View rootView = inflater.inflate(R.layout.fragment_tab_photos,container, false);
 
-			_imageSource = new int[] { R.drawable.cat1, R.drawable.cat2,
-					R.drawable.cat3, R.drawable.cat4, R.drawable.cat5, R.drawable.cat6, R.drawable.cat7};
+			// Setup the timer
+			_timer = new Timer();
+			_timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					TimerMethod();
+				}
 
-			_adapter = new GridViewAdapter(getActivity(), _imageSource);
+			}, 0, 30000);
 
-			// Locate the GridView
+			_bitmapArray = new ArrayList<Bitmap>();
+
 			_grid = (GridView) rootView.findViewById(R.id.photosGridView);
+		
+			_adapter = new ImageAdapter(getActivity(), _bitmapArray);
+			_grid.setAdapter(_adapter);
 
-			_grid.setAdapter(new ImageAdapter(_context));
-			
+			// Capture clicks on ListView items
+			_grid.setOnItemClickListener(new OnItemClickListener() {
+				@Override
+				public void onItemClick(AdapterView<?> parent, View view,
+						int position, long id) {
+					// Send single item click data to SingleItemView Class
+					Intent i = new Intent(getActivity(), PhotoActivity.class);
+					// Pass images
+					i.putParcelableArrayListExtra("images", _bitmapArray);
+					// Pass a single position
+					i.putExtra("position", position);
+					// Open PhotoActivity
+					startActivity(i);
+				}
+			});
+
+			Button sendButton = (Button) rootView.findViewById(R.id.cameraButton);
+			sendButton.setOnClickListener(new View.OnClickListener() { 
+				@Override
+				public void onClick(View v) {
+					Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+					startActivityForResult(cameraIntent, CAMERA_PIC_REQUEST);
+				}
+			});
+
 			return rootView;
 		}
-		
-		void saveImage(Bitmap photo) {
-			// Getting the SDCard Path
-			File sdcard = Environment.getExternalStorageDirectory();
-			File editedFile = new File( sdcard, "myphoto.jpeg" );
-			FileOutputStream fOut;
-			try {
-				fOut = new FileOutputStream( editedFile );
-				photo.compress( Bitmap.CompressFormat.JPEG, 90, fOut );
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+
+		public void onActivityResult(int requestCode, int resultCode, Intent data) {
+			if (requestCode == CAMERA_PIC_REQUEST) {
+				Bitmap image = (Bitmap) data.getExtras().get("data");
+				saveImage(image);
 			}
 		}
+
+		private void TimerMethod()
+		{
+			//This method is called directly by the timer
+			//and runs in the same thread as the timer.
+
+			//We call the method that will work with the UI
+			//through the runOnUiThread method.
+			getActivity().runOnUiThread(Timer_Tick);
+		}
+
+		private Runnable Timer_Tick = new Runnable() {
+			public void run() {
+
+				//This method runs in the same thread as the UI.               
+
+				//Do something to the UI thread here
+				queryImages();
+			}
+		};
+
+		void saveImage(Bitmap photo) {
+			// Getting the SDCard Path
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyyddhhmm");
+			String currentDateandTime = sdf.format(new Date());
+			String imageName = "image_"+ currentDateandTime +".jpeg";
+
+			ByteArrayOutputStream stream = new ByteArrayOutputStream();
+			photo.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+			// get byte array here
+			byte[] data = stream.toByteArray();
+
+			ParseObject imageWarehourseObj = new ParseObject("ImageWarehouse");
+			imageWarehourseObj.put("fromUser", _fromUser);
+			imageWarehourseObj.put("toUser", _toUser);
+			imageWarehourseObj.put("imageName", imageName);
+			if (data != null){
+				ParseFile imgFile = new ParseFile (imageName, data);
+				imgFile.saveInBackground();
+				imageWarehourseObj.put("image", imgFile);
+			}
+			imageWarehourseObj.saveInBackground(new SaveCallback() {
+				public void done(ParseException e) {
+					// Handle success or failure here ...
+					if (e == null) {
+						queryImages();
+					} else {
+						Log.d("queryImages", "Error:" + e.getMessage());
+					}
+				}
+			});
+		}
+
+		public void queryImages() {
+			ParseQuery<ParseObject> query = ParseQuery.getQuery("ImageWarehouse");
+			query.whereEqualTo("fromUser", _fromUser);
+			query.whereEqualTo("toUser", _toUser);
+			query.setLimit(30);
+			query.orderByAscending("createdAt");
+			query.findInBackground(new FindCallback<ParseObject>() {
+				@Override
+				public void done(List<ParseObject> images, ParseException e) {
+					if (e == null) {
+						Log.d("Image Warehouse", "There are: " + images.size() + " images");
+						_bitmapArray = new ArrayList<Bitmap>();
+						for (ParseObject image : images) {
+							ParseFile imageFile = (ParseFile)image.get("image");
+							imageFile.getDataInBackground(new GetDataCallback() {
+								public void done(byte[] data, ParseException e) {
+									if (e == null) {
+										// data has the bytes for the image
+										Bitmap bitmap = BitmapFactory.decodeByteArray(data , 0, data.length);
+										_bitmapArray.add(bitmap); // Add a bitmap
+									} else {
+										// something went wrong
+										Log.d("queryImages.getDataInBackground", "Error:" + e.getMessage());
+									}
+									refreshImageGridView();
+								}
+							});
+						}
+					} else {
+						Log.d("queryImages", "Error:" + e.getMessage());
+					}	
+				}
+			});
+		}
+
+		public void refreshImageGridView() {
+			// Pass results to GridViewAdapter Class
+			_adapter = new ImageAdapter(getActivity(), _bitmapArray);
+			_grid.setAdapter(_adapter);
+			((ImageAdapter)_grid.getAdapter()).notifyDataSetChanged();
+		}
+
+
 	}
 }

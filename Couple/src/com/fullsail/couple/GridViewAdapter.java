@@ -1,6 +1,9 @@
 package com.fullsail.couple;
 
+import java.util.ArrayList;
+
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,10 +14,10 @@ import android.widget.BaseAdapter;
 public class GridViewAdapter extends BaseAdapter{
 	
 	Context context;
-    int[] imageResource;
     LayoutInflater inflater;
+    ArrayList<Bitmap> imageResource;
 	
-	public GridViewAdapter(Context context, int[] imageResource) {
+	public GridViewAdapter(Context context, ArrayList<Bitmap> imageResource) {
         this.context = context;
         this.imageResource = imageResource;
     }

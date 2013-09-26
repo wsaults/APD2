@@ -128,7 +128,6 @@ public class InviteActivity extends Activity {
 
 						Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
 						String setTo[] = {username};
-						String setFrom[] = {_emailFromLogin};
 						emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, setTo);
 						emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Your invite code for Couple Android App...");
 						emailIntent.setType("plain/text");
