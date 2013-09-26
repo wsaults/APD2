@@ -49,6 +49,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -282,6 +283,33 @@ ActionBar.TabListener {
 
 			_chatEditText = (EditText) rootView.findViewById(R.id.chatEditText);
 
+			// Capture clicks on ListView items
+			_list.setOnItemClickListener(new OnItemClickListener() {
+				@Override
+				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+					ParseQuery<ParseObject> query = ParseQuery.getQuery("Messenger");
+					query.whereEqualTo("fromUser", _fromUser);
+					query.whereEqualTo("toUser", _toUser);
+					query.whereEqualTo("message", _messages[position]);
+					query.whereEqualTo("time", _times[position]);
+					query.findInBackground(new FindCallback<ParseObject>() {
+						@Override
+						public void done(List<ParseObject> messages, ParseException e) {
+							if (e == null) {
+								Log.d("Messenger", "There are: " + messages.size() + " messages");
+								for (ParseObject message : messages) {
+									message.deleteInBackground();
+									Toast.makeText(_context, "Message deleted.", Toast.LENGTH_LONG).show();
+								}
+								refreshChatLog();
+							} else {
+								Log.d("Messaging", "Error:" + e.getMessage());
+							}	
+						}
+					});
+				}
+			});
+
 			Button sendButton = (Button) rootView.findViewById(R.id.chatSendButton);
 			sendButton.setOnClickListener(new View.OnClickListener() { 
 				@Override
@@ -405,6 +433,7 @@ ActionBar.TabListener {
 	public static class PhotosSectionFragment extends Fragment {
 
 		ArrayList<Bitmap> _bitmapArray;
+		ArrayList<String> _photoNames;
 		GridView _grid;
 		private static final int CAMERA_PIC_REQUEST = 1337;
 		Timer _timer;
@@ -429,12 +458,13 @@ ActionBar.TabListener {
 				public void run() {
 					TimerMethod();
 				}
-			}, 0, 30000);
+			}, 0, 15000);
 
 			_bitmapArray = new ArrayList<Bitmap>();
+			_photoNames = new ArrayList<String>();
 
 			_grid = (GridView) rootView.findViewById(R.id.photosGridView);
-		
+
 			_adapter = new ImageAdapter(getActivity(), _bitmapArray);
 			_grid.setAdapter(_adapter);
 
@@ -443,12 +473,39 @@ ActionBar.TabListener {
 				@Override
 				public void onItemClick(AdapterView<?> parent, View view,
 						int position, long id) {
+
 					// Send single item click data to SingleItemView Class
 					Intent i = new Intent(getActivity(), PhotoActivity.class);
 					// Pass image
 					i.putExtra("image", _bitmapArray.get(position));
 					// Open PhotoActivity
 					startActivity(i);
+				}
+			});
+
+			_grid.setOnItemLongClickListener(new OnItemLongClickListener() {
+				@Override
+				public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+					ParseQuery<ParseObject> query = ParseQuery.getQuery("ImageWarehouse");
+					query.whereEqualTo("fromUser", _fromUser);
+					query.whereEqualTo("toUser", _toUser);
+					query.whereEqualTo("imageName", _photoNames.get(position));
+					query.findInBackground(new FindCallback<ParseObject>() {
+						@Override
+						public void done(List<ParseObject> images, ParseException e) {
+							if (e == null) {
+								Log.d("ImageWarehouse", "There are: " + images.size() + " images");
+								for (ParseObject image : images) {
+									image.deleteInBackground();
+									Toast.makeText(_context, "Image deleted.", Toast.LENGTH_LONG).show();
+								}
+								refreshImageGridView();
+							} else {
+								Log.d("Messaging", "Error:" + e.getMessage());
+							}	
+						}
+					});
+					return false;
 				}
 			});
 
@@ -536,7 +593,8 @@ ActionBar.TabListener {
 					if (e == null) {
 						Log.d("Image Warehouse", "There are: " + images.size() + " images");
 						_bitmapArray = new ArrayList<Bitmap>();
-						for (ParseObject image : images) {
+						_photoNames = new ArrayList<String>();
+						for (final ParseObject image : images) {
 							ParseFile imageFile = (ParseFile)image.get("image");
 							imageFile.getDataInBackground(new GetDataCallback() {
 								public void done(byte[] data, ParseException e) {
@@ -544,6 +602,7 @@ ActionBar.TabListener {
 										// data has the bytes for the image
 										Bitmap bitmap = BitmapFactory.decodeByteArray(data , 0, data.length);
 										_bitmapArray.add(bitmap); // Add a bitmap
+										_photoNames.add((String) image.getString("imageName")); // Add image name
 									} else {
 										// something went wrong
 										Log.d("queryImages.getDataInBackground", "Error:" + e.getMessage());
@@ -565,7 +624,5 @@ ActionBar.TabListener {
 			_grid.setAdapter(_adapter);
 			((ImageAdapter)_grid.getAdapter()).notifyDataSetChanged();
 		}
-
-
 	}
 }
