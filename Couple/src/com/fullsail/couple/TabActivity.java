@@ -10,10 +10,6 @@
 package com.fullsail.couple;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +27,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.SaveCallback;
 
+import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
 import android.content.Context;
@@ -39,9 +36,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.ImageFormat;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -355,6 +350,7 @@ ActionBar.TabListener {
 			scrollListViewToBottom(_list);
 		}
 
+		@SuppressLint("SimpleDateFormat")
 		public void updateChatLog(String text) {
 			_chatEditText.setText("");
 			// Create messenger object
@@ -433,7 +429,6 @@ ActionBar.TabListener {
 				public void run() {
 					TimerMethod();
 				}
-
 			}, 0, 30000);
 
 			_bitmapArray = new ArrayList<Bitmap>();
@@ -450,10 +445,8 @@ ActionBar.TabListener {
 						int position, long id) {
 					// Send single item click data to SingleItemView Class
 					Intent i = new Intent(getActivity(), PhotoActivity.class);
-					// Pass images
-					i.putParcelableArrayListExtra("images", _bitmapArray);
-					// Pass a single position
-					i.putExtra("position", position);
+					// Pass image
+					i.putExtra("image", _bitmapArray.get(position));
 					// Open PhotoActivity
 					startActivity(i);
 				}
@@ -498,6 +491,7 @@ ActionBar.TabListener {
 			}
 		};
 
+		@SuppressLint("SimpleDateFormat")
 		void saveImage(Bitmap photo) {
 			// Getting the SDCard Path
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyyddhhmm");

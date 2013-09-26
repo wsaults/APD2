@@ -1,7 +1,5 @@
 package com.fullsail.couple;
 
-import java.util.ArrayList;
-
 import android.os.Bundle;
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -12,7 +10,7 @@ import android.support.v4.app.NavUtils;
 
 public class PhotoActivity extends Activity {
 	
-	ArrayList<Bitmap> _images;
+	Bitmap _image;
 	int _position;
 
 	@Override
@@ -24,7 +22,7 @@ public class PhotoActivity extends Activity {
 		
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-			_images = extras.getParcelableArrayList("images");
+			_image = extras.getParcelable("image");
 			_position = extras.getInt("position");
 		}
 		
@@ -32,7 +30,7 @@ public class PhotoActivity extends Activity {
 		ImageView imageView = (ImageView) findViewById(R.id.photoImageView);
  
         // Load the image into the ImageView followed by the position
-		imageView.setImageBitmap(_images.get(_position));
+		imageView.setImageBitmap(_image);
 	}
 
 	/**
