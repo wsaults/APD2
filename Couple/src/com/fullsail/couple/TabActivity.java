@@ -522,9 +522,15 @@ ActionBar.TabListener {
 		}
 
 		public void onActivityResult(int requestCode, int resultCode, Intent data) {
-			if (requestCode == CAMERA_PIC_REQUEST) {
-				Bitmap image = (Bitmap) data.getExtras().get("data");
-				saveImage(image);
+			if (requestCode == CAMERA_PIC_REQUEST && resultCode == RESULT_OK) {
+				if(data.getAction() != null)
+				{
+					Bitmap image = (Bitmap) data.getExtras().get("data");
+
+					if(image != null) {       
+						saveImage(image);
+					}
+				}
 			}
 		}
 
