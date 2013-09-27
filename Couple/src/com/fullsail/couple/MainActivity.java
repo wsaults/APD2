@@ -35,8 +35,9 @@ public class MainActivity extends Activity {
 	
 	EditText _emailEditText;
 	EditText _passwordEditText;
-	static Context _context;
+	public static Context _context;
 	SharedPreferences _preferences;
+	static Boolean _connected = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +84,13 @@ public class MainActivity extends Activity {
 	}
 	
 	public Boolean areUserCredentialsValid(String username, String password) {
+		
+		_connected = Connectivity.getConnectionStatus(_context);
+		if (!_connected) {
+			Toast.makeText(getApplicationContext(), "Please make sure you have an internet connection", Toast.LENGTH_LONG).show();
+			return false;
+		}
+		
 		// Make sure there is valid data in the fields
 		if (username.length() <= 0) {
 			Toast.makeText(getApplicationContext(), "Please enter an email", Toast.LENGTH_LONG).show();

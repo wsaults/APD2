@@ -20,11 +20,11 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 import android.os.Bundle;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-//import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.util.Log;
 import android.view.Menu;
@@ -40,6 +40,7 @@ public class InviteActivity extends Activity {
 	EditText _acceptInviteEditText;
 	String _emailFromLogin;
 	String _key;
+	static Boolean _connected = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +80,13 @@ public class InviteActivity extends Activity {
 	}
 
 	public Boolean areUserCredentialsValid(String username) {
+		
+		_connected = Connectivity.getConnectionStatus(_context);
+		if (!_connected) {
+			Toast.makeText(getApplicationContext(), "Please make sure you have an internet connection", Toast.LENGTH_LONG).show();
+			return false;
+		}
+		
 		// Make sure there is valid data in the fields
 		if (username.length() <= 0) {
 			Toast.makeText(getApplicationContext(), "Please enter an email", Toast.LENGTH_LONG).show();
@@ -152,49 +160,55 @@ public class InviteActivity extends Activity {
 		}
 	}
 
+	@SuppressLint("SimpleDateFormat")
 	public void acceptInvitation(String code) {
-		if (code.length() > 0) {
-			ParseQuery<ParseObject> query = ParseQuery.getQuery("Invite");
-			query.whereEqualTo("toUser", _emailFromLogin);
-			query.whereEqualTo("code", code);
-			query.findInBackground(new FindCallback<ParseObject>() {
-				@Override
-				public void done(List<ParseObject> invite, ParseException e) {
-					if (e == null) {
-						Log.d("invite", "Retrieved " + invite.size() + " invite");
-						if (invite.size() >= 1) {
-							// Connect users
-							ParseObject obj = invite.get(0);
-							String toUser = obj.getString("toUser");
-
-							updateRecipients(toUser);
-
-							// Create messenger object
-							SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
-							String currentDateandTime = sdf.format(new Date());
-							ParseObject messengerObj = new ParseObject("Messenger");
-							messengerObj.put("fromUser", _emailFromLogin);
-							messengerObj.put("toUser", toUser);
-							messengerObj.put("message", "Coupled");
-							messengerObj.put("time", currentDateandTime);
-							messengerObj.saveInBackground();
-
-							updatePreference();
-
-							Intent a = new Intent(getApplicationContext(),TabActivity.class);
-							setResult(RESULT_OK, a);
-							startActivityForResult(a,0);
-						} else {
-							Toast.makeText(getApplicationContext(), "No matching invite found", Toast.LENGTH_LONG).show();
-						}
-					} else {
-						Log.d("invite", "Error: Invite" + e.getMessage());
-						Toast.makeText(getApplicationContext(), "Error: Invite", Toast.LENGTH_LONG).show();
-					}	
-				}
-			});
+		_connected = Connectivity.getConnectionStatus(_context);
+		if (!_connected) {
+			Toast.makeText(getApplicationContext(), "Please make sure you have an internet connection", Toast.LENGTH_LONG).show();
 		} else {
-			Toast.makeText(getApplicationContext(), "Please enter your code", Toast.LENGTH_LONG).show();
+			if (code.length() > 0) {
+				ParseQuery<ParseObject> query = ParseQuery.getQuery("Invite");
+				query.whereEqualTo("toUser", _emailFromLogin);
+				query.whereEqualTo("code", code);
+				query.findInBackground(new FindCallback<ParseObject>() {
+					@Override
+					public void done(List<ParseObject> invite, ParseException e) {
+						if (e == null) {
+							Log.d("invite", "Retrieved " + invite.size() + " invite");
+							if (invite.size() >= 1) {
+								// Connect users
+								ParseObject obj = invite.get(0);
+								String toUser = obj.getString("toUser");
+
+								updateRecipients(toUser);
+
+								// Create messenger object
+								SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
+								String currentDateandTime = sdf.format(new Date());
+								ParseObject messengerObj = new ParseObject("Messenger");
+								messengerObj.put("fromUser", _emailFromLogin);
+								messengerObj.put("toUser", toUser);
+								messengerObj.put("message", "Coupled");
+								messengerObj.put("time", currentDateandTime);
+								messengerObj.saveInBackground();
+
+								updatePreference();
+
+								Intent a = new Intent(getApplicationContext(),TabActivity.class);
+								setResult(RESULT_OK, a);
+								startActivityForResult(a,0);
+							} else {
+								Toast.makeText(getApplicationContext(), "No matching invite found", Toast.LENGTH_LONG).show();
+							}
+						} else {
+							Log.d("invite", "Error: Invite" + e.getMessage());
+							Toast.makeText(getApplicationContext(), "Error: Invite", Toast.LENGTH_LONG).show();
+						}	
+					}
+				});
+			} else {
+				Toast.makeText(getApplicationContext(), "Please enter your code", Toast.LENGTH_LONG).show();
+			}
 		}
 	}
 

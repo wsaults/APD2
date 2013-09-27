@@ -62,6 +62,7 @@ ActionBar.TabListener {
 	static Context _context;
 	static String _fromUser;
 	static String _toUser;
+	static Boolean _connected = false;
 
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -265,8 +266,6 @@ ActionBar.TabListener {
 			_messages = new String[] {};
 			_times = new String[] {};
 
-			queryMessages();
-
 			SharedPreferences preferences = _context.getSharedPreferences("MyPreferences", MODE_PRIVATE);
 			_userName = preferences.getString("username", "") + ": ";
 
@@ -287,26 +286,31 @@ ActionBar.TabListener {
 			_list.setOnItemClickListener(new OnItemClickListener() {
 				@Override
 				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-					ParseQuery<ParseObject> query = ParseQuery.getQuery("Messenger");
-					query.whereEqualTo("fromUser", _fromUser);
-					query.whereEqualTo("toUser", _toUser);
-					query.whereEqualTo("message", _messages[position]);
-					query.whereEqualTo("time", _times[position]);
-					query.findInBackground(new FindCallback<ParseObject>() {
-						@Override
-						public void done(List<ParseObject> messages, ParseException e) {
-							if (e == null) {
-								Log.d("Messenger", "There are: " + messages.size() + " messages");
-								for (ParseObject message : messages) {
-									message.deleteInBackground();
-									Toast.makeText(_context, "Message deleted.", Toast.LENGTH_LONG).show();
-								}
-								refreshChatLog();
-							} else {
-								Log.d("Messaging", "Error:" + e.getMessage());
-							}	
-						}
-					});
+					_connected = Connectivity.getConnectionStatus(_context);
+					if (!_connected) {
+						Toast.makeText(getActivity(), "Please make sure you have an internet connection", Toast.LENGTH_LONG).show();
+					} else {
+						ParseQuery<ParseObject> query = ParseQuery.getQuery("Messenger");
+						query.whereEqualTo("fromUser", _fromUser);
+						query.whereEqualTo("toUser", _toUser);
+						query.whereEqualTo("message", _messages[position]);
+						query.whereEqualTo("time", _times[position]);
+						query.findInBackground(new FindCallback<ParseObject>() {
+							@Override
+							public void done(List<ParseObject> messages, ParseException e) {
+								if (e == null) {
+									Log.d("Messenger", "There are: " + messages.size() + " messages");
+									for (ParseObject message : messages) {
+										message.deleteInBackground();
+										Toast.makeText(_context, "Message deleted.", Toast.LENGTH_LONG).show();
+									}
+									refreshChatLog();
+								} else {
+									Log.d("Messaging", "Error:" + e.getMessage());
+								}	
+							}
+						});
+					}
 				}
 			});
 
@@ -344,30 +348,35 @@ ActionBar.TabListener {
 		};
 
 		public void queryMessages() {
-			ParseQuery<ParseObject> query = ParseQuery.getQuery("Messenger");
-			query.whereEqualTo("fromUser", _fromUser);
-			query.whereEqualTo("toUser", _toUser);
-			query.setLimit(30);
-			query.orderByAscending("createdAt");
-			query.findInBackground(new FindCallback<ParseObject>() {
-				@Override
-				public void done(List<ParseObject> messages, ParseException e) {
-					if (e == null) {
-						_messages = new String [] {};
-						_times = new String [] {};
-						Log.d("Messenger", "There are: " + messages.size() + " messages");
-						for (ParseObject message : messages) {
-							String m = message.getString("message");
-							_messages = append(_messages, m);
-							String t = message.getString("time");
-							_times = append(_times, t);
-						}
-						refreshChatLog();
-					} else {
-						Log.d("Messaging", "Error:" + e.getMessage());
-					}	
-				}
-			});
+			_connected = Connectivity.getConnectionStatus(_context);
+			if (!_connected) {
+				Toast.makeText(getActivity(), "Please make sure you have an internet connection", Toast.LENGTH_LONG).show();
+			} else {
+				ParseQuery<ParseObject> query = ParseQuery.getQuery("Messenger");
+				query.whereEqualTo("fromUser", _fromUser);
+				query.whereEqualTo("toUser", _toUser);
+				query.setLimit(30);
+				query.orderByAscending("createdAt");
+				query.findInBackground(new FindCallback<ParseObject>() {
+					@Override
+					public void done(List<ParseObject> messages, ParseException e) {
+						if (e == null) {
+							_messages = new String [] {};
+							_times = new String [] {};
+							Log.d("Messenger", "There are: " + messages.size() + " messages");
+							for (ParseObject message : messages) {
+								String m = message.getString("message");
+								_messages = append(_messages, m);
+								String t = message.getString("time");
+								_times = append(_times, t);
+							}
+							refreshChatLog();
+						} else {
+							Log.d("Messaging", "Error:" + e.getMessage());
+						}	
+					}
+				});
+			}
 		}
 
 		public void refreshChatLog() {
@@ -380,29 +389,31 @@ ActionBar.TabListener {
 
 		@SuppressLint("SimpleDateFormat")
 		public void updateChatLog(String text) {
-			_chatEditText.setText("");
-			// Create messenger object
-			SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
-			String currentDateandTime = sdf.format(new Date());
-			ParseObject messengerObj = new ParseObject("Messenger");
-			messengerObj.put("fromUser", _fromUser);
-			messengerObj.put("toUser", _toUser);
-			messengerObj.put("message", text);
-			messengerObj.put("time", currentDateandTime);
-			messengerObj.saveInBackground(new SaveCallback() {
-				public void done(ParseException e) {
-					// Handle success or failure here ...
-					if (e == null) {
-						queryMessages();
-					} else {
-						Log.d("updateChatLog", "Error:" + e.getMessage());
+			_connected = Connectivity.getConnectionStatus(_context);
+			if (!_connected) {
+				Toast.makeText(getActivity(), "Please make sure you have an internet connection", Toast.LENGTH_LONG).show();
+			} else {
+				_chatEditText.setText("");
+				// Create messenger object
+				SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
+				String currentDateandTime = sdf.format(new Date());
+				ParseObject messengerObj = new ParseObject("Messenger");
+				messengerObj.put("fromUser", _fromUser);
+				messengerObj.put("toUser", _toUser);
+				messengerObj.put("message", text);
+				messengerObj.put("time", currentDateandTime);
+				messengerObj.saveInBackground(new SaveCallback() {
+					public void done(ParseException e) {
+						// Handle success or failure here ...
+						if (e == null) {
+							queryMessages();
+						} else {
+							Log.d("updateChatLog", "Error:" + e.getMessage());
+						}
+
 					}
-
-				}
-			});
-
-			//			_messages = append(_messages, text);
-			//			_times = append(_times, currentDateandTime);
+				});
+			}
 		}
 
 		// Thank you stack overflow!
@@ -486,6 +497,11 @@ ActionBar.TabListener {
 			_grid.setOnItemLongClickListener(new OnItemLongClickListener() {
 				@Override
 				public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+					_connected = Connectivity.getConnectionStatus(_context);
+					if (!_connected) {
+						Toast.makeText(getActivity(), "Please make sure you have an internet connection", Toast.LENGTH_LONG).show();
+						return false;
+					}
 					ParseQuery<ParseObject> query = ParseQuery.getQuery("ImageWarehouse");
 					query.whereEqualTo("fromUser", _fromUser);
 					query.whereEqualTo("toUser", _toUser);
@@ -556,72 +572,82 @@ ActionBar.TabListener {
 
 		@SuppressLint("SimpleDateFormat")
 		void saveImage(Bitmap photo) {
-			// Getting the SDCard Path
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyyddhhmm");
-			String currentDateandTime = sdf.format(new Date());
-			String imageName = "image_"+ currentDateandTime +".jpeg";
+			_connected = Connectivity.getConnectionStatus(_context);
+			if (!_connected) {
+				Toast.makeText(getActivity(), "Please make sure you have an internet connection", Toast.LENGTH_LONG).show();
+			} else {
+				// Getting the SDCard Path
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyyddhhmm");
+				String currentDateandTime = sdf.format(new Date());
+				String imageName = "image_"+ currentDateandTime +".jpeg";
 
-			ByteArrayOutputStream stream = new ByteArrayOutputStream();
-			photo.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-			// get byte array here
-			byte[] data = stream.toByteArray();
+				ByteArrayOutputStream stream = new ByteArrayOutputStream();
+				photo.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+				// get byte array here
+				byte[] data = stream.toByteArray();
 
-			ParseObject imageWarehourseObj = new ParseObject("ImageWarehouse");
-			imageWarehourseObj.put("fromUser", _fromUser);
-			imageWarehourseObj.put("toUser", _toUser);
-			imageWarehourseObj.put("imageName", imageName);
-			if (data != null){
-				ParseFile imgFile = new ParseFile (imageName, data);
-				imgFile.saveInBackground();
-				imageWarehourseObj.put("image", imgFile);
-			}
-			imageWarehourseObj.saveInBackground(new SaveCallback() {
-				public void done(ParseException e) {
-					// Handle success or failure here ...
-					if (e == null) {
-						queryImages();
-					} else {
-						Log.d("queryImages", "Error:" + e.getMessage());
-					}
+				ParseObject imageWarehourseObj = new ParseObject("ImageWarehouse");
+				imageWarehourseObj.put("fromUser", _fromUser);
+				imageWarehourseObj.put("toUser", _toUser);
+				imageWarehourseObj.put("imageName", imageName);
+				if (data != null){
+					ParseFile imgFile = new ParseFile (imageName, data);
+					imgFile.saveInBackground();
+					imageWarehourseObj.put("image", imgFile);
 				}
-			});
+				imageWarehourseObj.saveInBackground(new SaveCallback() {
+					public void done(ParseException e) {
+						// Handle success or failure here ...
+						if (e == null) {
+							queryImages();
+						} else {
+							Log.d("queryImages", "Error:" + e.getMessage());
+						}
+					}
+				});
+			}
 		}
 
 		public void queryImages() {
-			ParseQuery<ParseObject> query = ParseQuery.getQuery("ImageWarehouse");
-			query.whereEqualTo("fromUser", _fromUser);
-			query.whereEqualTo("toUser", _toUser);
-			query.setLimit(30);
-			query.orderByAscending("createdAt");
-			query.findInBackground(new FindCallback<ParseObject>() {
-				@Override
-				public void done(List<ParseObject> images, ParseException e) {
-					if (e == null) {
-						Log.d("Image Warehouse", "There are: " + images.size() + " images");
-						_bitmapArray = new ArrayList<Bitmap>();
-						_photoNames = new ArrayList<String>();
-						for (final ParseObject image : images) {
-							ParseFile imageFile = (ParseFile)image.get("image");
-							imageFile.getDataInBackground(new GetDataCallback() {
-								public void done(byte[] data, ParseException e) {
-									if (e == null) {
-										// data has the bytes for the image
-										Bitmap bitmap = BitmapFactory.decodeByteArray(data , 0, data.length);
-										_bitmapArray.add(bitmap); // Add a bitmap
-										_photoNames.add((String) image.getString("imageName")); // Add image name
-									} else {
-										// something went wrong
-										Log.d("queryImages.getDataInBackground", "Error:" + e.getMessage());
+			_connected = Connectivity.getConnectionStatus(_context);
+			if (!_connected) {
+				Toast.makeText(getActivity(), "Please make sure you have an internet connection", Toast.LENGTH_LONG).show();
+			} else {
+				ParseQuery<ParseObject> query = ParseQuery.getQuery("ImageWarehouse");
+				query.whereEqualTo("fromUser", _fromUser);
+				query.whereEqualTo("toUser", _toUser);
+				query.setLimit(30);
+				query.orderByAscending("createdAt");
+				query.findInBackground(new FindCallback<ParseObject>() {
+					@Override
+					public void done(List<ParseObject> images, ParseException e) {
+						if (e == null) {
+							Log.d("Image Warehouse", "There are: " + images.size() + " images");
+							_bitmapArray = new ArrayList<Bitmap>();
+							_photoNames = new ArrayList<String>();
+							for (final ParseObject image : images) {
+								ParseFile imageFile = (ParseFile)image.get("image");
+								imageFile.getDataInBackground(new GetDataCallback() {
+									public void done(byte[] data, ParseException e) {
+										if (e == null) {
+											// data has the bytes for the image
+											Bitmap bitmap = BitmapFactory.decodeByteArray(data , 0, data.length);
+											_bitmapArray.add(bitmap); // Add a bitmap
+											_photoNames.add((String) image.getString("imageName")); // Add image name
+										} else {
+											// something went wrong
+											Log.d("queryImages.getDataInBackground", "Error:" + e.getMessage());
+										}
+										refreshImageGridView();
 									}
-									refreshImageGridView();
-								}
-							});
-						}
-					} else {
-						Log.d("queryImages", "Error:" + e.getMessage());
-					}	
-				}
-			});
+								});
+							}
+						} else {
+							Log.d("queryImages", "Error:" + e.getMessage());
+						}	
+					}
+				});
+			}
 		}
 
 		public void refreshImageGridView() {
