@@ -29,8 +29,10 @@ import com.parse.SaveCallback;
 
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -84,9 +86,27 @@ ActionBar.TabListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_tab);
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
+		
 		_context = this;
+		
 		SharedPreferences preferences = _context.getSharedPreferences("MyPreferences", MODE_PRIVATE);
+		Boolean hasSeenChatInstructions = preferences.getBoolean("hasSeenChatInstructions", false);
+		if (!hasSeenChatInstructions) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(_context);
+			builder.setMessage("Deleting messages is easy! Just tap any message that you want to delete. You can also delete images by tap-holding on any image in your photos.")
+			       .setCancelable(false)
+			       .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			    	   public void onClick(DialogInterface dialog, int id) {
+			    		   SharedPreferences p = _context.getSharedPreferences("MyPreferences", MODE_PRIVATE);
+			    		   SharedPreferences.Editor e = p.edit();
+			    		   e.putBoolean("hasSeenChatInstructions", true);
+			    		   e.commit();
+			    	   }
+			       });
+			AlertDialog alert = builder.create();
+			alert.show();
+		}
+		
 		_fromUser = preferences.getString("fromUser", "");
 		_toUser = preferences.getString("toUser", "");
 		if (_toUser.length() == 0) {
@@ -251,7 +271,7 @@ ActionBar.TabListener {
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 			View rootView = inflater.inflate(R.layout.fragment_tab_chat, container, false);
-
+			
 			// Setup the timer
 			_timer = new Timer();
 			_timer.schedule(new TimerTask() {
@@ -265,7 +285,7 @@ ActionBar.TabListener {
 			// Generate sample data
 			_messages = new String[] {};
 			_times = new String[] {};
-
+			
 			SharedPreferences preferences = _context.getSharedPreferences("MyPreferences", MODE_PRIVATE);
 			_userName = preferences.getString("username", "") + ": ";
 
