@@ -12,14 +12,12 @@ public class ListViewAdapter extends BaseAdapter {
     Context context;
     String[] message;
     String[] time;
-    String userName;
     LayoutInflater inflater;
  
-    public ListViewAdapter(Context context, String[] message, String[] time, String userName) {
+    public ListViewAdapter(Context context, String[] message, String[] time) {
         this.context = context;
         this.message = message;
         this.time = time;
-        this.userName = userName;
     }
  
     public int getCount() {
@@ -37,7 +35,6 @@ public class ListViewAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
  
         // Declare Variables
-    	TextView messageLabel;
         TextView txtMessage;
         TextView txtTime;
  
@@ -46,11 +43,9 @@ public class ListViewAdapter extends BaseAdapter {
         View itemView = inflater.inflate(R.layout.listview_item, parent, false);
  
         // Locate the TextViews in listview_item.xml
-        messageLabel = (TextView) itemView.findViewById(R.id.messagelabel);
         txtMessage = (TextView) itemView.findViewById(R.id.message);
         txtTime = (TextView) itemView.findViewById(R.id.time);
 		
-        messageLabel.setText(userName);
         txtMessage.setText(message[position]);
         txtTime.setText(time[position]);
  

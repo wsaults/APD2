@@ -285,12 +285,9 @@ ActionBar.TabListener {
 			// Generate sample data
 			_messages = new String[] {};
 			_times = new String[] {};
-			
-			SharedPreferences preferences = _context.getSharedPreferences("MyPreferences", MODE_PRIVATE);
-			_userName = preferences.getString("username", "") + ": ";
 
 			// Pass results to ListViewAdapter Class
-			_adapter = new ListViewAdapter(getActivity(), _messages, _times, _userName);
+			_adapter = new ListViewAdapter(getActivity(), _messages, _times);
 
 			// Locate the ListView
 			_list = (ListView) rootView.findViewById(R.id.chatListView);
@@ -401,7 +398,7 @@ ActionBar.TabListener {
 
 		public void refreshChatLog() {
 			// Pass results to ListViewAdapter Class
-			_adapter = new ListViewAdapter(getActivity(), _messages, _times, _userName);
+			_adapter = new ListViewAdapter(getActivity(), _messages, _times);
 			_list.setAdapter(_adapter);
 			((ListViewAdapter)_list.getAdapter()).notifyDataSetChanged();
 			scrollListViewToBottom(_list);
@@ -415,12 +412,14 @@ ActionBar.TabListener {
 			} else {
 				_chatEditText.setText("");
 				// Create messenger object
+				SharedPreferences preferences = _context.getSharedPreferences("MyPreferences", MODE_PRIVATE);
+				_userName = preferences.getString("username", "") + ": ";
 				SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
 				String currentDateandTime = sdf.format(new Date());
 				ParseObject messengerObj = new ParseObject("Messenger");
 				messengerObj.put("fromUser", _fromUser);
 				messengerObj.put("toUser", _toUser);
-				messengerObj.put("message", text);
+				messengerObj.put("message", _userName + text);
 				messengerObj.put("time", currentDateandTime);
 				messengerObj.saveInBackground(new SaveCallback() {
 					public void done(ParseException e) {

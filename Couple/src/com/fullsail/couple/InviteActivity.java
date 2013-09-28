@@ -124,7 +124,7 @@ public class InviteActivity extends Activity {
 					} else {
 						// Save the username and password to parse
 						ParseObject inviteObject = new ParseObject("Invite");
-						inviteObject.put("fromuser", _emailFromLogin);
+						inviteObject.put("fromUser", _emailFromLogin);
 						inviteObject.put("toUser", username);
 						Random r = new Random();
 						int rand=r.nextInt(9999-1111) + 1111;
@@ -132,8 +132,9 @@ public class InviteActivity extends Activity {
 						inviteObject.put("code", _key);
 						inviteObject.saveInBackground();
 
-						updateRecipients(username);
-
+						updateRecipients(_emailFromLogin, username);
+						updatePreference();
+						
 						Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
 						String setTo[] = {username};
 						emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, setTo);
@@ -141,8 +142,6 @@ public class InviteActivity extends Activity {
 						emailIntent.setType("plain/text");
 						emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Here is your code: " + _key + ".\n Please download the Couple Android app to begin.");
 						startActivityForResult(emailIntent, 1);
-
-						updatePreference();
 					}  
 				} else {
 					Toast.makeText(getApplicationContext(), "There has been an error.", Toast.LENGTH_LONG).show();
@@ -178,16 +177,16 @@ public class InviteActivity extends Activity {
 							if (invite.size() >= 1) {
 								// Connect users
 								ParseObject obj = invite.get(0);
-								String toUser = obj.getString("toUser");
+								String fromUser = obj.getString("fromUser");
 
-								updateRecipients(toUser);
+								updateRecipients(fromUser, _emailFromLogin);
 
 								// Create messenger object
 								SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
 								String currentDateandTime = sdf.format(new Date());
 								ParseObject messengerObj = new ParseObject("Messenger");
-								messengerObj.put("fromUser", _emailFromLogin);
-								messengerObj.put("toUser", toUser);
+								messengerObj.put("fromUser", fromUser);
+								messengerObj.put("toUser", _emailFromLogin);
 								messengerObj.put("message", "Coupled");
 								messengerObj.put("time", currentDateandTime);
 								messengerObj.saveInBackground();
@@ -212,10 +211,10 @@ public class InviteActivity extends Activity {
 		}
 	}
 
-	public void updateRecipients(String toUser) {
+	public void updateRecipients(String fromUser, String toUser) {
 		SharedPreferences preferences = getApplicationContext().getSharedPreferences("MyPreferences", MODE_PRIVATE);
 		SharedPreferences.Editor editor = preferences.edit();
-		editor.putString("fromUser", _emailFromLogin);
+		editor.putString("fromUser", fromUser);
 		editor.putString("toUser", toUser);
 		editor.commit();
 	}
